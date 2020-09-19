@@ -1,0 +1,3 @@
+[submodule "mddoc-test"]
+	path = mddoc-test
+	url = git@gitlab.com:emmanuel.guisse/mddoc-test.git

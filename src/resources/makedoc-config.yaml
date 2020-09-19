@@ -1,0 +1,4 @@
+# configuration file for makepdf.py
+global:
+  source_doc_path: doc
+  dest_doc_file:

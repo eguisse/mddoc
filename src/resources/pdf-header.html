@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style type="text/css">
+    .customheader {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: darkblue;
+    }
+
+    .customheader.hide {
+      display: none;
+    }
+  </style>
+  <script>
+    function pagination() {
+      var vars = {};
+      var x = document.location.search.substring(1).split('&');
+      for (var i in x) {
+        var z = x[i].split('=', 2);
+        vars[z[0]] = unescape(z[1]);
+      }
+      var x = ['frompage', 'topage', 'page', 'webpage', 'section', 'subsection', 'subsubsection'];
+      for (var i in x) {
+        var y = document.getElementsByClassName(x[i]);
+        for (var j = 0; j < y.length; ++j) y[j].textContent = vars[x[i]];
+
+        if (vars['page'] == 1) {
+          var element = document.getElementById("customheader");
+          element.classList.add("hide");
+        }
+      }
+    }
+  </script>
+</head>
+<body onload="pagination()">
+<div class="customheader" id="customheader">
+  <p>
+  <table style="width:100%; border:0px">
+    <tr>
+      <th style="text-align:left; font-size:10px; width:35%">filename: ${_FILENAME}</th>
+      <th style="text-align:left; font-size:10px; width:30%"></th>
+      <th style="text-align:right; font-size:10px; width:35%">version: ${_GIT_VERSION}</th>
+    </tr>
+    <tr>
+      <th style="text-align:left; font-size:10px; width:35%">document status: ${_STATUS}</th>
+      <th style="text-align:center; font-size:14px; width:30%; color:black; font-weight: bold">${_TITLE}</th>
+      <th style="text-align:right; font-size:10px; width:35%">project: ${_PROJECTNAME}</th>
+    </tr>
+  </table>
+  </p>
+</div>
+</body>
+</html>

@@ -1,0 +1,66 @@
+---
+# Refer to https://github.com/mkdocs/mkdocs/blob/master/mkdocs.yml for a working example
+# other example: https://github.com/ConsenSys/smart-contract-best-practices/blob/master/mkdocs.yml
+#
+#
+site_name: mddoc project, test document
+site_url: https://localhost/mddoc-test
+site_description: mddoc test document
+site_author: Emmanuel GUISSE
+repo_url: https://github.com/eguisse/mddoc
+copyright: Copyright (c) 2019 2020, Emmanuel GUISSE
+
+
+extra:
+  # first page and page headers
+  status: In progress
+  published_date: April 1st, 2018
+  version: 0.1.0
+  project_name: mddoc
+  filename: test_mddoc.pdf
+  confidentiality: Public
+  company_name: EGITC
+  company_url: www.egitc.com
+  document_owner: Emmanuel GUISSE
+  # the real filename
+  pdf_out_filename: mddoc_report.pdf
+  wkhtmltopdf_opts: "--dpi 300 --minimum-font-size 2 -B 25mm -L 10mm -R 5mm -T 25mm -O Portrait -s A4 --page-size A4 --header-spacing 10 --footer-spacing 5 "
+  pandoc_opts: "-f gfm+smart --filter pandoc-plantuml --highlight-style espresso --columns=80 --wrap=auto"
+  # Create change records page with the list of the tags
+  git_history: true
+  # include file index.md
+  include_index_page: true
+  pdf_meta_keywords: mddoc project
+  # Set false if you write chapter number.
+  chapter_autonumbering: true
+  # Build new file table_of_contents.md with the list of chapters found in all md documents
+  include_table_of_contents: true
+
+
+nav:
+  - Home: index.md
+  - Introduction: introduction.md
+  - Processes: process.md
+
+
+theme:
+    name: material
+    language: en
+
+markdown_extensions:
+    - admonition
+    - codehilite:
+          guess_lang: false
+    - toc:
+          permalink: true
+
+plugins:
+    - search
+    - build_plantuml:
+          render: "local" # "server" or "local" for local rendering
+          bin_path: "/usr/local/bin/plantuml" # for security reason, we don't use online server
+          output_format: "png" # or "png"
+          diagram_root: "diagrams" # should reside under docs_dir
+          output_folder: "image"
+          input_folder: ""
+          input_extensions: ""

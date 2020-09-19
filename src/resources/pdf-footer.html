@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script>
+        function substitutePdfVariables() {
+
+            function getParameterByName(name) {
+                var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+                return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+            }
+
+            function substitute(name) {
+                var value = getParameterByName(name);
+                var elements = document.getElementsByClassName(name);
+
+                for (var i = 0; elements && i < elements.length; i++) {
+                    elements[i].textContent = value;
+                }
+            }
+
+            ['frompage', 'topage', 'page', 'webpage', 'section', 'subsection', 'subsubsection', '_COPYRIGHT']
+                .forEach(function (param) {
+                    substitute(param);
+                });
+        }
+    </script>
+</head>
+<body onload="substitutePdfVariables()">
+<p>
+<table style="width:100%; border:1px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: black">
+    <tr>
+        <th style="text-align:left; font-size:12px; width:20%">Page <span class="page"></span> of <span
+            class="topage"></span></th>
+        <th style="text-align:right; font-size:12px; width:80%"><span class="section"></span></th>
+    </tr>
+    <tr>
+        <th rowspan="3" style="text-align:left; font-size:12px; color: red; width:30%"><span class="restricted">Confidentiality: ${_CONFIDENTIALITY}</span>
+        </th>
+    </tr>
+    <tr>
+        <th rowspan="3" style="text-align:center; font-size:10px; color: #2f363d; width:100%"><span class="restricted">${_RIGHTS}</span>
+        </th>
+    </tr>
+</table>
+</p>
+</body>
+</html>

@@ -1,0 +1,131 @@
+#!/bin/bash
+#
+# Convert markdown document to a pdf file
+#
+#
+# Copyright (c) 2018 2020, Emmanuel GUISSE
+#
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+
+set -eo pipefail
+
+function usage()
+{
+    echo "Usage: convert2pdf <options>"
+    echo ""
+    echo "where options include:"
+    echo "  -h   print this help message"
+    echo "  -b   build path, by default PROJECT_PATH/build"
+    echo "  -d   doc path, by default PROJECT_PATH/doc"
+    echo "  -f   config file, by default PROJECT_PATH/doc/mddoc.yml"
+    echo "  -l   Logging configuration File"
+    echo "  -o   pdf output file name"
+    echo "  -p   project path: mandatory option"
+    echo "  -r   resource path"
+    echo "  -v   print version"
+    echo ""
+    echo "example:"
+    echo "  convert2pdf -p /home/bob/myproject -d docs -f conf/mddoc.yml"
+    echo ""
+}
+
+PARAMS=""
+
+while (( "$#" )); do
+  case "$1" in
+    -h)
+      usage
+      exit 0
+      ;;
+    -b)
+      PARAMS="$PARAMS -b $2"
+      shift 2
+      ;;
+    -d)
+      PARAMS="$PARAMS -d $2"
+      shift 2
+      ;;
+    -f)
+      PARAMS="$PARAMS -f $2"
+      shift 2
+      ;;
+    -l)
+      PARAMS="$PARAMS -l $2"
+      shift 2
+      ;;
+    -o)
+      PARAMS="$PARAMS -o $2"
+      shift 2
+      ;;
+    -p)
+      MOUNT_PATH=$2
+      shift 2
+      ;;
+     -r)
+      PARAMS="$PARAMS -r $2"
+      shift 2
+      ;;
+    -v)
+      PARAMS="-v"
+      shift 2
+      ;;
+    -f|--flag-with-argument)
+      FARG=$2
+      shift 2
+      ;;
+    --) # end argument parsing
+      shift
+      break
+      ;;
+    -*|--*=) # unsupported flags
+      echo "Error: Unsupported flag $1" >&2
+      exit 1
+      ;;
+    *) # preserve positional arguments
+      echo "Error: Unsupported option $1" >&2
+      exit 1
+      ;;
+  esac
+done
+
+if [[ -z ${MOUNT_PATH} ]]
+then
+    echo "ERROR: parameter -p <project path> is not set" >&2
+    exit 1
+fi
+
+if [[ ! -d "${MOUNT_PATH}" ]]
+then
+    echo "ERROR: directory ${MOUNT_PATH} does not exist" >&2
+    exit 1
+fi
+
+
+if [[ ! -d "${MOUNT_PATH}/.git" ]]
+then
+    echo "ERROR: directory ${MOUNT_PATH}/.git does not exist" >&2
+    echo "project must use git scm" >&2
+    exit 1
+fi
+
+MDDOC_DOCKER_IMAGE="${MDDOC_DOCKER_IMAGE:-eguisse/mddoc:latest}"
+
+docker pull "${MDDOC_DOCKER_IMAGE}"
+
+docker run -it --rm -v "${MOUNT_PATH}:/mnt:rw" "${MDDOC_DOCKER_IMAGE}" bash makepdf.sh ${PARAMS}
+
+exit $?
+
