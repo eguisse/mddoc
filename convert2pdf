@@ -35,6 +35,7 @@ function usage()
     echo "  -o   pdf output file name"
     echo "  -p   project path: mandatory option"
     echo "  -r   resource path"
+    echo "  -s   site path by default PROJECT_PATH/site"
     echo "  -v   print version"
     echo ""
     echo "example:"
@@ -76,6 +77,10 @@ while (( "$#" )); do
       ;;
      -r)
       PARAMS="$PARAMS -r $2"
+      shift 2
+      ;;
+     -s)
+      PARAMS="$PARAMS -s $2"
       shift 2
       ;;
     -v)
