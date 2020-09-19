@@ -41,6 +41,7 @@ jobs:
                       VERSION=pr-${{ github.event.number }}
                     fi
                     TAGS="${DOCKER_IMAGE}:${VERSION}"
+                    LOCAL_VERSION="${DOCKER_IMAGE}:${VERSION}"
                     if [[ $VERSION =~ ^v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
                       MINOR=${VERSION%.*}
                       MAJOR=${MINOR%.*}
@@ -48,6 +49,7 @@ jobs:
                     elif [ "${{ github.event_name }}" = "push" ]; then
                       TAGS="$TAGS,${DOCKER_IMAGE}:sha-${GITHUB_SHA::8}"
                     fi
+                    echo ::set-output name=local_version::${LOCAL_VERSION}
                     echo ::set-output name=version::${VERSION}
                     echo ::set-output name=tags::${TAGS}
                     echo ::set-output name=created::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
@@ -82,7 +84,7 @@ jobs:
             -   name: Image digest
                 run: echo ${{ steps.docker_build.outputs.digest }}
             -   name: Test the pdf converter
-                run: MDDOC_DOCKER_IMAGE="${{ github.repository }}:${{ steps.prep.outputs.tags }}" ./convert2pdf -d docs -b build -o mddoc_test_doc.pdf -f mddoc.yml -s site
+                run: MDDOC_DOCKER_IMAGE="${{ steps.prep.outputs.local_version }}" ./convert2pdf -d docs -b build -o mddoc_test_doc.pdf -f mddoc.yml -s site
                 shell: bash
             -   name: Archive production artifacts
                 uses: actions/upload-artifact@v2
