@@ -106,10 +106,13 @@ while (( "$#" )); do
   esac
 done
 
+
+
+
 if [[ -z ${MOUNT_PATH} ]]
 then
-    echo "ERROR: parameter -p <project path> is not set" >&2
-    exit 1
+    # If mount path if not set, then using current path
+    MOUNT_PATH="$(pwd)"
 fi
 
 if [[ ! -d "${MOUNT_PATH}" ]]
@@ -129,7 +132,6 @@ fi
 MDDOC_DOCKER_IMAGE="${MDDOC_DOCKER_IMAGE:-eguisse/mddoc:latest}"
 
 docker pull "${MDDOC_DOCKER_IMAGE}"
-
 docker run -it --rm -v "${MOUNT_PATH}:/mnt:rw" "${MDDOC_DOCKER_IMAGE}" bash makepdf.sh ${PARAMS}
 
 exit $?
