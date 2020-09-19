@@ -4,7 +4,6 @@ markdown to pdf converter with plantuml support and merge multiple md files
 
 ## Introduction
 
-
 mddoc is a tool to convert markdown document to pdf.
 A python script merge multiple md files into one single md file, then it converts to pdf using pandoc and wkhtmltopdf.
 
@@ -17,16 +16,14 @@ and readthedoc format using the same configuration file and Docker image.
 
 
 
-
 ## Installation
 
-I recommend using the docker image eguisse/mddoc.
+To avoid compilation, you can use script `convert2pdf`, it uses a Docker image `https://hub.docker.com/repository/docker/eguisse/mddoc`
 
 
 ### Using the existing Docker image
 
 ```bash
-
 docker pull eguisse/mddoc:latest
 
 docker run -it --rm -v "$(CURRENT_DIR):/mnt:rw" "mddoc:latest" bash makepdf.sh -d docs -b build -o build/mddoc-docker-test.pdf -r src/resources -f mddoc.yml
@@ -58,6 +55,18 @@ Or if you want to use the docker:
 docker run -it --rm -v "$(PROJECT_DIR):/mnt:rw" "mddoc:latest" bash makepdf.sh -d docs -b build -o build/mddoc-docker-test.pdf -r src/resources -f mddoc.yml
 ```
 
+List of options:
+
+-h:  print the help message
+-b:   build path, by default PROJECT_PATH/build
+-d:   doc path, by default PROJECT_PATH/doc
+-f:   config file, by default PROJECT_PATH/doc/mddoc.yml
+-l:   Logging configuration File
+-o:   pdf output file name
+-p:   project path: mandatory option
+-r:   resource path
+-s:   site path by default PROJECT_PATH/build/site
+-v:   print version
 
 
 ## Customize the document
@@ -83,7 +92,7 @@ when running command `convert2pdf` , specify the option `-r` where the resource 
 Modify the file as your needs.
 
 
-## Build
+## Build the docker image mddoc
 
 
 ### Compile binaries and Build the Docker image.

@@ -16,4 +16,4 @@ subject: Project mddoc subject - Index
 
 
 
-See [issues](https://gitlab.com/emmanuel.guisse/mddoc/issues) for topics that need to be covered or updated.
+See [issues](https://github.com/eguisse/mddoc/issues) for topics that need to be covered or updated.

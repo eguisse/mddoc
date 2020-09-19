@@ -59,7 +59,6 @@ build-py-venv: clean-py-venv   ## Build python virtual environment
 clean-wkhtmltopdf:
 	rm -Rf build/wp
 
-
 build-wkhtmltopdf-requirments:  ## install requirements to build wkhtmltopdf
 	sudo apt install -y python-yaml docker.io vagrant virtualbox p7zip-full python3.8-venv
 
@@ -77,8 +76,6 @@ build-wkhtmltopdf: clean-wkhtmltopdf build-py-venv  ## Build wkhtmltopdf old
 	gsutil acl ch -r -u AllUsers:R gs://engineering-doc-egitc-com/dist/wkhtmltox.focal_amd64.deb
 	# http://storage.googleapis.com/engineering-doc-egitc-com/dist/wkhtmltox.focal_amd64.deb
 
-
-
 build-graphviz:   ## Build graphviz
 	@echo 'start build-graphviz'
 	mkdir -p build/graphviz
@@ -86,7 +83,6 @@ build-graphviz:   ## Build graphviz
 
 run-docker-img-mddoc_build:    ## Run Docker image mddoc_build used for compilation
 	docker run -it --rm --net=host --env-file $(cnf) -v "$(CURRENT_DIR):/mnt:rw" "mddoc_build:latest" bash
-
 
 # DOCKER TASKS
 # Build the container
@@ -106,7 +102,6 @@ publish: tag-latest ## Publish the `latest` taged container to ECR
 	@echo 'publish $(VERSION) to $(DOCKER_REPO)'
 	docker push $(DOCKER_REPO)/$(APP_NAME):$(VERSION)
 
-
 # Docker tagging
 tag: tag-latest tag-version ## Generate container tags for the `{version}` ans `latest` tags
 
@@ -123,11 +118,9 @@ tag-version: ## Generate container `latest` tag
 clean:  ## delete test build files
 	rm -Rf $(PROJECT_DIR)/build
 
-
 test-docker-pdf:  ## Run docker container for test convert to pdf
 	@echo 'start test-docker-pdf for project path $(REPO_DOC_TEST)'
 	docker run -it --rm -v "$(PROJECT_DIR):/mnt:rw" "mddoc:latest" bash makepdf.sh -d docs -b build -o build/mddoc-docker-test.pdf -r src/resources -f mddoc.yml
-
 
 test-docker-bash:  ## run docker container and execute bash
 	@echo 'start test-docker-bash for project path $(REPO_DOC_TEST)'
@@ -138,7 +131,6 @@ test-docker-site:  ## Run docker container for test convert to site
 	rm -Rf $(CURRENT_DIR)/site
 	mkdir $(CURRENT_DIR)/site
 	docker run -it --rm -v "$(CURRENT_DIR):/mnt:rw" "mddoc:latest" bash makesite.sh -d docs -b build -r src/resources -f mddoc.yml -s site
-
 
 test-md: clean  ## test markdown transformation
 	source venv/bin/activate && export PYTHONPATH=$(CURRENT_DIR)/src && python3 src/makepdf.py -f $(CURRENT_DIR)/mddoc.yml -p $(CURRENT_DIR) -b $(CURRENT_DIR)/build -d docs -r src/resources

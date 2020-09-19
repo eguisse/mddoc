@@ -87,7 +87,7 @@ jobs:
                 run: |
                     set -eu
                     mkdir -p build && chmod 777 build
-                    mkdir -p site && chmod 777 site
+                    mkdir -p build/site && chmod 777 build/site
                     MDDOC_DOCKER_IMAGE="${{ steps.prep.outputs.local_version }}" ./convert2pdf -d docs -b build -o build/mddoc_test_doc.pdf -f mddoc.yml -s site
                 shell: bash
             -   name: Archive production artifacts
