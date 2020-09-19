@@ -85,8 +85,9 @@ jobs:
                 run: echo ${{ steps.docker_build.outputs.digest }}
             -   name: Test the pdf converter
                 run: |
-                    mkdir build && chmod 777 build
-                    mkdir site && chmod 777 site
+                    set -eu
+                    mkdir -p build && chmod 777 build
+                    mkdir -p site && chmod 777 site
                     MDDOC_DOCKER_IMAGE="${{ steps.prep.outputs.local_version }}" ./convert2pdf -d docs -b build -o mddoc_test_doc.pdf -f mddoc.yml -s site
                 shell: bash
             -   name: Archive production artifacts
