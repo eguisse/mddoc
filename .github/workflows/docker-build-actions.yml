@@ -84,7 +84,10 @@ jobs:
             -   name: Image digest
                 run: echo ${{ steps.docker_build.outputs.digest }}
             -   name: Test the pdf converter
-                run: MDDOC_DOCKER_IMAGE="${{ steps.prep.outputs.local_version }}" ./convert2pdf -d docs -b build -o mddoc_test_doc.pdf -f mddoc.yml -s site
+                run: |
+                    mkdir build && chmod 777 build
+                    mkdir site && chmod 777 site
+                    MDDOC_DOCKER_IMAGE="${{ steps.prep.outputs.local_version }}" ./convert2pdf -d docs -b build -o mddoc_test_doc.pdf -f mddoc.yml -s site
                 shell: bash
             -   name: Archive production artifacts
                 uses: actions/upload-artifact@v2
