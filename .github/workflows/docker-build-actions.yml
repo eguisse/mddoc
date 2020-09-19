@@ -46,7 +46,7 @@ jobs:
                       MAJOR=${MINOR%.*}
                       TAGS="$TAGS,${DOCKER_IMAGE}:${MINOR},${DOCKER_IMAGE}:${MAJOR},${DOCKER_IMAGE}:latest"
                     elif [ "${{ github.event_name }}" = "push" ]; then
-                      TAGS="$TAGS,${DOCKER_IMAGE}:sha-${GITHUB_SHA::8},${DOCKER_IMAGE}:latest"
+                      TAGS="$TAGS,${DOCKER_IMAGE}:sha-${GITHUB_SHA::8}"
                     fi
                     echo ::set-output name=version::${VERSION}
                     echo ::set-output name=tags::${TAGS}
@@ -82,7 +82,7 @@ jobs:
             -   name: Image digest
                 run: echo ${{ steps.docker_build.outputs.digest }}
             -   name: Test the pdf converter
-                run: MDDOC_DOCKER_IMAGE="${{ github.repository }}:latest" ./convert2pdf -d docs -b build -o mddoc_test_doc.pdf -f mddoc.yml -s site
+                run: MDDOC_DOCKER_IMAGE="${{ github.repository }}:${VERSION}" ./convert2pdf -d docs -b build -o mddoc_test_doc.pdf -f mddoc.yml -s site
                 shell: bash
             -   name: Archive production artifacts
                 uses: actions/upload-artifact@v2

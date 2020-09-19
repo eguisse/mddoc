@@ -26,14 +26,12 @@ import shutil
 import sys
 import codecs
 import yaml
-import time
 import logging.config
 from collections import UserDict
 import re
 import argparse
 import git
 import subprocess
-from subprocess import Popen, PIPE
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger(__name__)
