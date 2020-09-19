@@ -10,7 +10,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN useradd --uid 1000 -m -s /bin/bash build
 RUN apt-get update -q \
   && apt-get install -q -y software-properties-common locales pandoc gettext-base xz-utils \
-  exiftool vim openjdk-11-jdk python3.8 python3-pip python3.8-venv git curl wget \
+  exiftool vim openjdk-11-jdk python3.8 python3-pip python3.8-venv git curl wget lftp \
   ca-certificates  fontconfig ttf-mscorefonts-installer ttf-ubuntu-font-family ttf-unifont \
   libxext6 libxrender1 xfonts-75dpi xfonts-base zlib1g libssl1.1 libpng-tools graphviz lua5.3 \
   librsvg2-common librsvg2-doc libpangocairo-1.0-0 libgtk-3-0  \

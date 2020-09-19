@@ -26,7 +26,7 @@ jobs:
             -   name: Prepare for docker build
                 id: prep
                 run: |
-                    DOCKER_IMAGE=eguisse/mddoc
+                    DOCKER_IMAGE=${{ github.repository }}
                     VERSION=noop
                     if [ "${{ github.event_name }}" = "schedule" ]; then
                       VERSION=nightly
@@ -81,10 +81,8 @@ jobs:
                         org.opencontainers.image.licenses=${{ github.event.repository.license.spdx_id }}
             -   name: Image digest
                 run: echo ${{ steps.docker_build.outputs.digest }}
-            -   name: list image
-                run: docker image ls
             -   name: Test the pdf converter
-                run: MDDOC_DOCKER_IMAGE="mddoc:lastest" ./convert2pdf -d docs -b build -o mddoc_test_doc.pdf -f mddoc.yml -s site
+                run: MDDOC_DOCKER_IMAGE="${{ github.repository }}:latest" ./convert2pdf -d docs -b build -o mddoc_test_doc.pdf -f mddoc.yml -s site
                 shell: bash
             -   name: Archive production artifacts
                 uses: actions/upload-artifact@v2

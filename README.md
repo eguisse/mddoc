@@ -131,3 +131,7 @@ make publish
 
 ### Automatic build using github workflow
 
+See file [.github/workflows/docker-build-actions.yml](.github/workflows/docker-build-actions.yml)
+
+Build status: ![build status](https://github.com/eguisse/mddoc/workflows/.github/workflows/docker-build-actions.yml/badge.svg)
+
