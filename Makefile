@@ -33,9 +33,10 @@ SHELL := /bin/bash
 # grep the version from the mix file
 VERSION=$(shell cat VERSION)
 CURRENT_DIR=$(shell pwd)
-ifeq ($(PROJECT_DIR), undefined)
+ifeq ($(strip $(PROJECT_DIR)), )
 PROJECT_DIR := $(CURRENT_DIR)
 endif
+export PROJECT_DIR
 
 # HELP
 # This will output the help for each task
@@ -76,10 +77,10 @@ build-wkhtmltopdf: clean-wkhtmltopdf build-py-venv  ## Build wkhtmltopdf old
 	gsutil acl ch -r -u AllUsers:R gs://engineering-doc-egitc-com/dist/wkhtmltox.focal_amd64.deb
 	# http://storage.googleapis.com/engineering-doc-egitc-com/dist/wkhtmltox.focal_amd64.deb
 
-build-graphviz:   ## Build graphviz
-	@echo 'start build-graphviz'
-	mkdir -p build/graphviz
-	docker run -it --rm --net=host --env-file $(cnf) -v "$(CURRENT_DIR):/mnt:rw" "mddoc_build:latest" bash build_graphviz.sh
+build-plantuml:  ## Build plantuml.jar
+	@echo 'start build-plantuml'
+	mkdir -p build/plantuml
+	cd $(PROJECT_DIR) && ./build_plantuml.sh
 
 run-docker-img-mddoc_build:    ## Run Docker image mddoc_build used for compilation
 	docker run -it --rm --net=host --env-file $(cnf) -v "$(CURRENT_DIR):/mnt:rw" "mddoc_build:latest" bash
@@ -87,7 +88,7 @@ run-docker-img-mddoc_build:    ## Run Docker image mddoc_build used for compilat
 # DOCKER TASKS
 # Build the container
 build-docker-image:  ## Build the docker image
-	@echo 'start build'
+	@echo 'start build in $(PROJECT_DIR)'
 	docker build $(DOCKER_BUILD_OPT) -t mddoc $(PROJECT_DIR)
 
 build-docker-image-nc: ## Build the docker image without caching

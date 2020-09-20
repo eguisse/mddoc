@@ -7,13 +7,65 @@ markdown to pdf converter with plantuml support and merge multiple md files
 mddoc is a tool to convert markdown document to pdf.
 A python script merge multiple md files into one single md file, then it converts to pdf using pandoc and wkhtmltopdf.
 
-mddoc support plantuml diagram.
+mddoc support plantuml diagram. (see project https://plantuml.com)
 
 You can customize the first page and header/ footer page of the pdf document using html template.
 
 Also, the Docker image includes project mkdocs (https://www.mkdocs.org/). So you can convert the markdown file into pdf 
 and readthedoc format using the same configuration file and Docker image.
 
+
+## Main features
+
+Generated pdf are formal, 
+
+
+**Fisrt page:**
+
+![First page](docs/images/first_page.png)
+
+
+Properties are automatically updated: 
+
+
+**Page Header:**
+
+![Page header](docs/images/page_header.png)
+
+
+**Page Footer:**
+
+![Page footer](docs/images/page_footer.png)
+
+
+**Change record:**
+
+It lists automatically all the tags
+
+![Change record](docs/images/change_record.png)
+
+
+**Plantuml support:**
+
+From embedded code on md file:
+
+![plantuml code](docs/images/plantuml-code.png)
+
+Provides a nice diagram:
+
+![plantuml diagram](docs/images/plantuml_diagram.png)
+
+
+**Beautiful code:**
+
+![Beautiful code](docs/images/pretty_code.png)
+
+**Pdf metadata**
+
+Very usefull if you store the pdf file on Microsoft OneDrive or Google Drive, 
+you can specify key words in pdf metadata:
+
+![Pdf properties](docs/images/pdf_properties.png)
 
 
 ## Installation
@@ -34,6 +86,12 @@ Also, you could use script `[convert2pdf](convert2pdf)`
 
 
 ## Convert markdown file to pdf
+
+Requirements:
+
+- Bash (on Linux, MacOS, Windows Subsystem for Linux (WSL) )
+- Docker engine (see https://www.docker.com/)
+
 
 1. create mddoc.yml file.
 

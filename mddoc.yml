@@ -2,11 +2,12 @@
 # Refer to https://github.com/mkdocs/mkdocs/blob/master/mkdocs.yml for a working example
 # other example: https://github.com/ConsenSys/smart-contract-best-practices/blob/master/mkdocs.yml
 #
+#       TEST file
 #
 site_name: mddoc project, test document
 site_url: https://localhost/mddoc-test
 site_description: mddoc test document
-site_author: Emmanuel GUISSE
+site_author: Steve Austin
 repo_url: https://github.com/eguisse/mddoc
 copyright: Copyright (c) 2019 2020, Emmanuel GUISSE
 
@@ -21,16 +22,18 @@ extra:
   confidentiality: Public
   company_name: EGITC
   company_url: www.egitc.com
-  document_owner: Emmanuel GUISSE
+  document_owner: Steve Austin
   # the real filename
   pdf_out_filename: mddoc_report.pdf
+  # pdf Page format
   wkhtmltopdf_opts: "--dpi 300 --minimum-font-size 2 -B 25mm -L 10mm -R 5mm -T 25mm -O Portrait -s A4 --page-size A4 --header-spacing 10 --footer-spacing 5 "
   pandoc_opts: "-f gfm+smart --filter pandoc-plantuml --highlight-style espresso --columns=80 --wrap=auto"
   # Create change records page with the list of the tags
   git_history: true
   # include file index.md
   include_index_page: true
-  pdf_meta_keywords: mddoc project
+  # pdf Metadata keywords
+  pdf_meta_keywords: mddoc project example pdf plantuml
   # Set false if you write chapter number.
   chapter_autonumbering: true
   # Build new file table_of_contents.md with the list of chapters found in all md documents

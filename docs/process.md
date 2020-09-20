@@ -43,6 +43,63 @@ end note
 stop
 ```
 
+
+## PlantUML diagram with AWS architecture
+
+```plantuml
+@startuml architecture_aws_01 format="png"
+!define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/master/dist
+!includeurl AWSPuml/AWSCommon.puml
+!includeurl AWSPuml/NetworkingAndContentDelivery/VPC.puml
+!includeurl AWSPuml/Compute/Compute.puml
+!includeurl AWSPuml/NetworkingAndContentDelivery/VPCInternetGateway.puml
+!includeurl AWSPuml/Compute/ElasticKubernetesService.puml
+!includeurl AWSPuml/Compute/ECSContainer2.puml
+!includeurl AWSPuml/NetworkingAndContentDelivery/ElasticLoadBalancing.puml
+
+'LAYOUT_TOP_DOWN
+'LAYOUT_LEFT_RIGHT
+
+
+VPC(aws_vpc, "My Company VPC" , "AWS VPC")  {
+
+    ElasticLoadBalancing(elb, "Load balancer", "AWS ELB")
+
+    ElasticKubernetesService(eks,"Kubernetes Cluster", "AWS EKS") {
+
+        rectangle "Zone A" { 
+            ECSContainer2(za_cont_1,"Web server container", "Docker container") {
+                component "Flask API server" as za_prom_ret
+            }
+     
+            Compute(za_vm_ec2, "Virtual Machine", "EC2") {
+                 component "Legacy app" as za_prom_tsdb1
+            }
+            za_prom_ret -down-> za_prom_tsdb1
+        }
+
+        rectangle "Zone B" { 
+            ECSContainer2(zb_cont_1,"Web server container", "Docker container") {
+                component "Flask API server" as zb_prom_ret
+            }        
+            Compute(vm_ec2, "Virtual Machine", "EC2") {
+                 component "Legacy app" as zb_prom_tsdb1
+            }
+            zb_prom_ret -down-> zb_prom_tsdb1
+        }
+        za_prom_tsdb1 <-left-> zb_prom_tsdb1: "  sync  "
+    }
+    elb -down-> za_prom_ret: http
+    elb -down-> zb_prom_ret: http
+}
+
+@enduml
+```
+
+
+
+
+
 ## plan uml example  4
 
 
