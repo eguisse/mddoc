@@ -68,6 +68,11 @@ you can specify key words in pdf metadata:
 ![Pdf properties](docs/images/pdf_properties.png)
 
 
+**Chapter autonumbering**
+
+Optionally, it computes the number of the chapter.
+
+
 ## Installation
 
 To avoid compilation, you can use script `convert2pdf`, it uses a Docker image `https://hub.docker.com/repository/docker/eguisse/mddoc`
