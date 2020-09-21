@@ -4,8 +4,8 @@ markdown to pdf converter with plantuml support and merge multiple md files
 
 ## Introduction
 
-mddoc is a tool to convert markdown document to pdf.
-A python script merge multiple md files into one single md file, then it converts to pdf using pandoc and wkhtmltopdf.
+mddoc is a tool to convert markdown documents to pdf. A python script merges multiple md files into one single md file, 
+then it converts to pdf using pandoc and wkhtmltopdf.
 
 mddoc support plantuml diagram. (see project https://plantuml.com)
 
@@ -16,8 +16,6 @@ and readthedoc format using the same configuration file and Docker image.
 
 
 ## Main features
-
-Generated pdf are formal, 
 
 
 **Fisrt page:**
@@ -62,7 +60,7 @@ Provides a nice diagram:
 
 **Pdf metadata**
 
-Very usefull if you store the pdf file on Microsoft OneDrive or Google Drive, 
+Very useful if you store the pdf file on Microsoft OneDrive or Google Drive, 
 you can specify key words in pdf metadata:
 
 ![Pdf properties](docs/images/pdf_properties.png)
@@ -162,7 +160,7 @@ Modify the file as your needs.
 
 Building the Docker image is long, because we compile plantuml, pandoc, wkhtmltopdf and graphviz from code source.
 
-0. Clone the reposiry
+0. Clone the repository
 
 ```bash
 git clone https://github.com/eguisse/mddoc.git

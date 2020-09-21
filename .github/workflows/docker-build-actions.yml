@@ -83,15 +83,15 @@ jobs:
                         org.opencontainers.image.licenses=${{ github.event.repository.license.spdx_id }}
             -   name: Image digest
                 run: echo ${{ steps.docker_build.outputs.digest }}
-            -   name: Test the pdf converter
-                run: |
-                    set -eu
-                    mkdir -p build && chmod 777 build
-                    mkdir -p build/site && chmod 777 build/site
-                    MDDOC_DOCKER_IMAGE="${{ steps.prep.outputs.local_version }}" ./convert2pdf -d docs -b build -o build/mddoc_test_doc.pdf -f mddoc.yml -s site
-                shell: bash
-            -   name: Archive production artifacts
-                uses: actions/upload-artifact@v2
-                with:
-                    name: mddoc_test_doc.pdf
-                    path: build/mddoc_test_doc.pdf
+#            -   name: Test the pdf converter
+#                run: |
+#                    set -eu
+#                    mkdir -p build && chmod 777 build
+#                    mkdir -p build/site && chmod 777 build/site
+#                    MDDOC_DOCKER_IMAGE="${{ steps.prep.outputs.local_version }}" ./convert2pdf -d docs -b build -o build/mddoc_test_doc.pdf -f mddoc.yml -s site
+#                shell: bash
+#            -   name: Archive production artifacts
+#                uses: actions/upload-artifact@v2
+#                with:
+#                    name: mddoc_test_doc.pdf
+#                    path: build/mddoc_test_doc.pdf
