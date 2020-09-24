@@ -274,8 +274,10 @@ class Transform:
         try:
             self.git_history.append(re.sub('"', '', str(
                 g.log('--no-walk', '--reverse', '--tags', '--pretty="| %an | %cD | %d | %s |"', '--abbrev-commit'))))
-        except IndexError:
+        except (AttributeError, IndexError) as e:
             logger.error("WARNING: git repository has no tag in history. Cannot build change record")
+            logger.error(e, exc_info=True)
+            pass
 
         # Get the last commit
         repo = git.Repo(repo_path)
@@ -285,8 +287,9 @@ class Transform:
         try:
             #self.git_version = str(repo.tags[-1]) + "_" + str(g.log('--pretty=%h', '-n 1'))
             self.git_version = re.sub('"', '', str(g.log('-n', '1', '--no-walk', '--pretty="commit %h %d"', '--abbrev-commit')))
-        except (AttributeError,IndexError):
+        except (AttributeError, IndexError):
             logger.error("WARNING: cannot get current version from git")
+            logger.error(e, exc_info=True)
             pass
         logger.debug("self.git_version=" + self.git_version)
 
@@ -788,6 +791,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception:
+        logger.error("Fatal error in main loop", exc_info=True)
     logger.debug('end of program')
     quit()
