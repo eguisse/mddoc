@@ -46,6 +46,7 @@ stop
 
 ## PlantUML diagram with AWS architecture
 
+
 ```plantuml
 @startuml architecture_aws_01 format="png"
 !define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/master/dist
@@ -60,7 +61,6 @@ stop
 'LAYOUT_TOP_DOWN
 'LAYOUT_LEFT_RIGHT
 
-
 VPC(aws_vpc, "My Company VPC" , "AWS VPC")  {
 
     ElasticLoadBalancing(elb, "Load balancer", "AWS ELB")
@@ -69,32 +69,33 @@ VPC(aws_vpc, "My Company VPC" , "AWS VPC")  {
 
         rectangle "Zone A" { 
             ECSContainer2(za_cont_1,"Web server container", "Docker container") {
-                component "Flask API server" as za_prom_ret
+                component "Flask API server" as za_api_srv
             }
      
             Compute(za_vm_ec2, "Virtual Machine", "EC2") {
-                 component "Legacy app" as za_prom_tsdb1
+                 component "Legacy app" as za_vm_app
             }
-            za_prom_ret -down-> za_prom_tsdb1
+            za_api_srv -down-> za_vm_app
         }
 
         rectangle "Zone B" { 
             ECSContainer2(zb_cont_1,"Web server container", "Docker container") {
-                component "Flask API server" as zb_prom_ret
+                component "Flask API server" as zb_api_srv
             }        
             Compute(vm_ec2, "Virtual Machine", "EC2") {
-                 component "Legacy app" as zb_prom_tsdb1
+                 component "Legacy app" as zb_vm_app
             }
-            zb_prom_ret -down-> zb_prom_tsdb1
+            zb_api_srv -down-> zb_vm_app
         }
-        za_prom_tsdb1 <-left-> zb_prom_tsdb1: "  sync  "
+        za_vm_app <-left-> zb_vm_app: "  sync  "
     }
-    elb -down-> za_prom_ret: http
-    elb -down-> zb_prom_ret: http
+    elb -down-> za_api_srv: http
+    elb -down-> zb_api_srv: http
 }
 
 @enduml
 ```
+
 
 
 
