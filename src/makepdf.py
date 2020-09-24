@@ -281,10 +281,11 @@ class Transform:
 
         # Get the last commit
         repo = git.Repo(repo_path)
-        self.git_date = str(repo.active_branch.commit.committed_datetime)
-        self.git_remote_url = next(repo.remote().urls)
-        self.git_version = None
         try:
+            self.git_date = str(repo.head.commit.committed_datetime)
+            self.git_remote_url = next(repo.remote().urls)
+            self.git_version = None
+
             #self.git_version = str(repo.tags[-1]) + "_" + str(g.log('--pretty=%h', '-n 1'))
             self.git_version = re.sub('"', '', str(g.log('-n', '1', '--no-walk', '--pretty="commit %h %d"', '--abbrev-commit')))
         except (AttributeError, IndexError):
