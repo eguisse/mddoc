@@ -29,7 +29,7 @@ rm -Rf ${BUILD_PATH}/jlatexmath
 cd ${BUILD_PATH}
 git clone https://github.com/opencollab/jlatexmath.git
 cd ${BUILD_PATH}/jlatexmath
-mvn package
+mvn package -Dmaven.test.skip=true
 cp ./jlatexmath/target/jlatexmath-*-SNAPSHOT.jar ${BUILD_PATH}/jlatexmath.jar
 
 cd ${CURRENT_PATH}
