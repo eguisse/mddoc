@@ -294,7 +294,7 @@ class Transform:
             self.git_version = re.sub('"', '', str(g.log('-n', '1', '--no-walk', '--pretty="commit %h %d"', '--abbrev-commit')))
             self.git_remote_branch = str(repo.active_branch.name)
 
-        except (AttributeError, IndexError, TypeError):
+        except (AttributeError, IndexError, TypeError) as e:
             logger.error("WARNING: cannot get current version from git")
             logger.error(e, exc_info=True)
             pass
