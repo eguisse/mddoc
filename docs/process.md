@@ -124,7 +124,7 @@ Below an example of svg image
 
 
 
-## Equation
+## Equation using latex
 
 ```plantuml
 @startlatex
@@ -142,6 +142,6 @@ f(t)=(a_0)/2 + sum_(n=1)^ooa_ncos((npit)/L)+sum_(n=1)^oo b_n\ sin((npit)/L)
 @endmath
 ```
 
-end of document
+
 
 

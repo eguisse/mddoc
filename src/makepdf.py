@@ -279,22 +279,22 @@ class Transform:
         try:
             self.git_history.append(re.sub('"', '', str(
                 g.log('--no-walk', '--reverse', '--tags', '--pretty="| %an | %cD | %d | %s |"', '--abbrev-commit'))))
-        except (AttributeError, IndexError) as e:
+        except (AttributeError, IndexError, TypeError) as e:
             logger.error("WARNING: git repository has no tag in history. Cannot build change record")
             logger.error(e, exc_info=True)
             pass
 
         # Get the last commit
         repo = git.Repo(repo_path)
+        self.git_version = None
+        self.git_remote_branch = 'master'
         try:
             self.git_date = str(repo.head.commit.committed_datetime)
             self.git_remote_url = next(repo.remote().urls)
-            self.git_version = None
+            self.git_version = re.sub('"', '', str(g.log('-n', '1', '--no-walk', '--pretty="commit %h %d"', '--abbrev-commit')))
             self.git_remote_branch = str(repo.active_branch.name)
 
-            self.git_version = re.sub('"', '',
-                                      str(g.log('-n', '1', '--no-walk', '--pretty="commit %h %d"', '--abbrev-commit')))
-        except (AttributeError, IndexError):
+        except (AttributeError, IndexError, TypeError):
             logger.error("WARNING: cannot get current version from git")
             logger.error(e, exc_info=True)
             pass

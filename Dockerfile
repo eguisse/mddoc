@@ -46,16 +46,17 @@ RUN /bin/bash -c 'curl --output /tmp/wkhtmltox.focal_amd64.deb http://storage.go
 RUN /bin/bash -c 'chmod a+wx *.sh'
 
 # install plantuml
-
 RUN /bin/bash -c 'cp /srv/plantuml /usr/local/bin/plantuml \
   && chmod a+rx /usr/local/bin/plantuml \
   && mkdir -p /opt/plantuml \
   && chmod a+rx /opt/plantuml'
-
 COPY build/plantuml.jar /opt/plantuml/plantuml.jar
 COPY build/jlatexmath.jar /opt/plantuml/jlatexmath.jar
 RUN /bin/bash -c 'chmod a+r /opt/plantuml/plantuml.jar'
 
+
+# Copy VERSION file
+COPY VERSION /srv/VERSION
 
 USER build
 WORKDIR /mnt

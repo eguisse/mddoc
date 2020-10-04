@@ -2,8 +2,6 @@ name: docker-image-build-action
 
 on:
     push:
-        branches:
-            - '**'
         tags:
             - '*.*.*'
     pull_request:
