@@ -126,18 +126,21 @@ Below an example of svg image
 
 ## Equation
 
-The Cauchy-Schwarz Inequality:
-
-\begin{equation*}
-\left( \sum_{k=1}^n a_k b_k \right)^2 \leq \left( \sum_{k=1}^n a_k^2 \right) \left( \sum_{k=1}^n b_k^2 \right)
-\end{equation*}
+```plantuml
+@startlatex
+\sum_{i=0}^{n-1} (a_i + b_i^2)
+@endlatex
+```
 
 ### Mathjax 
 
 Example:
 
-$$x = {-b \pm \sqrt{b^2-4ac} \over 2a}.$$
-
+```plantuml
+@startmath
+f(t)=(a_0)/2 + sum_(n=1)^ooa_ncos((npit)/L)+sum_(n=1)^oo b_n\ sin((npit)/L)
+@endmath
+```
 
 end of document
 

@@ -10,7 +10,7 @@ set -x
 CURRENT_DIR="$(pwd)"
 MDDOC_WORKDIR="${MDDOC_WORKDIR:-CURRENT_DIR}"
 
-declare -gx _BUILD_PATH="${MDDOC_WORKDIR}/build"
+declare -gx _BUILD_DIR="${MDDOC_WORKDIR}/build"
 #declare -gx _MKDOC_CONFIG="mkdocs.yml"
 declare -gx _TITLE=""
 declare -gx _AUTHOR=""
@@ -57,13 +57,13 @@ then
   exit 1
 fi
 
-if [[ ! -f "${_BUILD_PATH}/combined.env" ]]
+if [[ ! -f "${_BUILD_DIR}/combined.env" ]]
 then
-    echo "ERROR file not found: ${_BUILD_PATH}/combined.env"
+    echo "ERROR file not found: ${_BUILD_DIR}/combined.env"
     exit 1
 fi
 
-source ${_BUILD_PATH}/combined.env
+source ${_BUILD_DIR}/combined.env
 
 if [[ ! -f "${_PDF_PAGE1_HTML}" ]]
 then
@@ -79,7 +79,7 @@ fi
 #
 
 
-envsubst "`printf '${%s} ' $(env|cut -d'=' -f1)`" < "${_PDF_PAGE1_HTML}" > "${_BUILD_PATH}/pdf-page1.html"
+envsubst "`printf '${%s} ' $(env|cut -d'=' -f1)`" < "${_PDF_PAGE1_HTML}" > "${_BUILD_DIR}/pdf-page1.html"
 CURRENT_DIR="$(pwd)"
 mkdir -p /tmp/pandoc
 cd /tmp/pandoc
@@ -87,18 +87,18 @@ cd /tmp/pandoc
 #--columns=60 \
 #--css="${_CSS_FILE}" \
 
-/srv/pandoc "${_BUILD_PATH}/combined.md" \
+/srv/pandoc "${_BUILD_DIR}/combined.md" \
 --verbose \
 --log="${_BUILD_PATH}/pandoc.log" \
 --self-contained \
---resource-path "${_BUILD_PATH}:${_DOC_PATH}:/tmp/pandoc" \
+--resource-path "${_BUILD_DIR}:${_DOC_PATH}:/tmp/pandoc" \
 ${_PANDOC_OPTS} \
 -t html5 \
--s -o "${_BUILD_PATH}/combined.html" \
+-s -o "${_BUILD_DIR}/combined.html" \
 --template "${_TEMPLATE_HTML}" \
 --lua-filter="${_RESOURCE_PATH}/links-to-html.lua" \
 --css="${_CSS_FILE}" \
---include-before-body="${_BUILD_PATH}/pdf-page1.html"
+--include-before-body="${_BUILD_DIR}/pdf-page1.html"
 
 if [ $? -ne 0 ]
 then
@@ -107,33 +107,33 @@ then
 fi
 cd ${CURRENT_DIR}
 
-if [[ ! -f "${_BUILD_PATH}/combined.html" ]]
+if [[ ! -f "${_BUILD_DIR}/combined.html" ]]
 then
-  echo "ERROR: output file ${_BUILD_PATH}/combined.html not exists" >&2
+  echo "ERROR: output file ${_BUILD_DIR}/combined.html not exists" >&2
   exit 1
 fi
 
 echo "start conv2pdf"
 
 envsubst "`printf '${%s} ' $(env|cut -d'=' -f1)`" \
-  < "${_PDF_HEADER_HTML}" > "${_BUILD_PATH}/pdf-header.html"
+  < "${_PDF_HEADER_HTML}" > "${_BUILD_DIR}/pdf-header.html"
 
 envsubst "`printf '${%s} ' $(env|cut -d'=' -f1)`" \
-  < "${_PDF_FOOTER_HTML}"> "${_BUILD_PATH}/pdf-footer.html"
+  < "${_PDF_FOOTER_HTML}"> "${_BUILD_DIR}/pdf-footer.html"
 
 wkhtmltopdf \
     ${_WKHTMLTOPDF_OPTS} \
 	--title "$_TITLE" \
 	--header-line \
-	--header-html "${_BUILD_PATH}/pdf-header.html" \
+	--header-html "${_BUILD_DIR}/pdf-header.html" \
 	--footer-line \
-	--footer-html "${_BUILD_PATH}/pdf-footer.html" \
+	--footer-html "${_BUILD_DIR}/pdf-footer.html" \
 	--page-offset 0 \
 	--enable-external-links \
 	--enable-internal-links \
 	--replace _COPYRIGHT "${_RIGHTS}" \
-   "${_BUILD_PATH}/combined.html" \
-   "${_BUILD_PATH}/combined.pdf"
+   "${_BUILD_DIR}/combined.html" \
+   "${_BUILD_DIR}/combined.pdf"
 
 if [[ $? -ne 0 ]]
 then
@@ -141,7 +141,7 @@ then
   exit 1
 fi
 
-cp "${_BUILD_PATH}/combined.pdf" "${_PDFOUTFILE}"
+cp "${_BUILD_DIR}/combined.pdf" "${_PDFOUTFILE}"
 
 echo "start exiftool"
 
@@ -182,7 +182,7 @@ echo "creating site ..."
 
 mkdir -p "${_SITE_PATH}"
 
-mkdocs build -v -c -f ${_MKDOCS_CONFIG_FILENAME} -d ${_SITE_PATH}
+mkdocs build -v -c -f ${_MKDOCS_CONFIG_FILENAME} -d ${_SITE_PATH} --no-directory-urls
 
 if [[ $? -ne 0 ]]
 then

@@ -1,4 +1,10 @@
 #!/bin/bash
 set -e
 
-java -jar /opt/plantuml/plantuml.jar $@
+JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
+export JAVA_HOME
+CLASSPATH="/opt/plantuml/jlatexmath.jar:/opt/plantuml/plantuml.jar"
+export CLASSPATH
+${JAVA_HOME}/bin/java -classpath "${CLASSPATH}" net.sourceforge.plantuml.Run $@
+
+exit $?

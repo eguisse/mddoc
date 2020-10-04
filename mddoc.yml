@@ -44,6 +44,7 @@ nav:
   - Home: index.md
   - Introduction: introduction.md
   - Processes: process.md
+  - nwdiag.md
 
 
 theme:

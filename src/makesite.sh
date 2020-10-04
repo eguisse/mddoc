@@ -24,14 +24,14 @@ set -x
 CURRENT_DIR="$(pwd)"
 MDDOC_WORKDIR="${MDDOC_WORKDIR:-CURRENT_DIR}"
 
-declare -gx _BUILD_PATH="${MDDOC_WORKDIR}/build"
+declare -gx _BUILD_DIR="${MDDOC_WORKDIR}/build"
 
 set -uo pipefail
 
 
-mkdir -p "${_BUILD_PATH}"
+mkdir -p "${_BUILD_DIR}"
 
-touch "${_BUILD_PATH}/touchfile.txt"
+touch "${_BUILD_DIR}/touchfile.txt"
 
 python3 ${MDDOC_RUNTIME_PATH}/makepdf.py $@
 retcode=$?
@@ -42,17 +42,17 @@ fi
 
 set -euo pipefail
 
-if [[ ! -f "${_BUILD_PATH}/combined.env" ]]
+if [[ ! -f "${_BUILD_DIR}/combined.env" ]]
 then
-    echo "ERROR file not found: ${_BUILD_PATH}/combined.env"
+    echo "ERROR file not found: ${_BUILD_DIR}/combined.env"
     exit 1
 fi
 
-source ${_BUILD_PATH}/combined.env
+source ${_BUILD_DIR}/combined.env
 
 mkdir -p "${_SITE_PATH}"
 
-mkdocs build -v -c -f ${_MKDOCS_CONFIG_FILENAME} -d ${_SITE_PATH}
+mkdocs build -v -c -f ${_MKDOCS_CONFIG_FILENAME} -d ${_SITE_PATH} --no-directory-urls
 
 if [[ $? -ne 0 ]]
 then

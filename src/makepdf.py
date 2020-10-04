@@ -55,11 +55,12 @@ def makedirs(dirname: str):
     :return:
     """
     logger.debug("start makedirs " + dirname)
-    try:
-        os.makedirs(dirname)
-    except FileExistsError:
-        logger.error("ERROR cannot create directory: " + dirname)
-        pass
+    if not os.path.isdir(dirname):
+        try:
+            os.makedirs(dirname)
+        except FileExistsError as e:
+            logger.error(e, exc_info=True)
+            logger.error("ERROR cannot create directory: " + dirname)
 
 
 class Transform:
@@ -67,8 +68,10 @@ class Transform:
     Generate the report in markdown format
     """
 
-    def __init__(self, config_filename: str = None, docs_path: str = None, build_path: str = None, project_path: str = None,
-                 encoding: str = "utf-8", resource_path: str = None, output_filename: str = None, site_path: str = None):
+    def __init__(self, config_filename: str = None, docs_path: str = None, build_path: str = None,
+                 project_path: str = None,
+                 encoding: str = "utf-8", resource_path: str = None, output_filename: str = None,
+                 site_path: str = None):
         """
         Object builder
         :param config_filename:
@@ -99,7 +102,7 @@ class Transform:
 
         self.docs_path: str = None
         if docs_path is None:
-            self.docs_path =  os.path.join(self.project_path, "doc")
+            self.docs_path = os.path.join(self.project_path, "doc")
         else:
             self.docs_path = os.path.join(self.project_path, docs_path)
 
@@ -181,6 +184,8 @@ class Transform:
         self.chapter_autonumbering = True
         self.include_table_of_contents = True
         self.git_history = []
+        self.git_remote_branch = 'master'
+        self.diag_output_format = 'png'
 
     def parsefile(filename):
         logger.debug("start parsefile")
@@ -266,7 +271,7 @@ class Transform:
         logger.debug("GIT_REPO_PATH=" + repo_path)
         # check if .git is a repository, not a submodule
         # because when running in docker container, mount point is the repo. Cannot go to the parent directory.
-        if os.path.isfile(os.path.join(repo_path,".git")):
+        if os.path.isfile(os.path.join(repo_path, ".git")):
             logger.error("mddoc does not support submodule")
             raise NameError("mddoc does not support submodule")
 
@@ -285,14 +290,16 @@ class Transform:
             self.git_date = str(repo.head.commit.committed_datetime)
             self.git_remote_url = next(repo.remote().urls)
             self.git_version = None
+            self.git_remote_branch = str(repo.active_branch.name)
 
-            #self.git_version = str(repo.tags[-1]) + "_" + str(g.log('--pretty=%h', '-n 1'))
-            self.git_version = re.sub('"', '', str(g.log('-n', '1', '--no-walk', '--pretty="commit %h %d"', '--abbrev-commit')))
+            self.git_version = re.sub('"', '',
+                                      str(g.log('-n', '1', '--no-walk', '--pretty="commit %h %d"', '--abbrev-commit')))
         except (AttributeError, IndexError):
             logger.error("WARNING: cannot get current version from git")
             logger.error(e, exc_info=True)
             pass
         logger.debug("self.git_version=" + self.git_version)
+        logger.debug("self.git_remote_branch=" + self.git_remote_branch)
 
         if self.git_version is not None:
             # insert into combined.md for pdf file
@@ -322,6 +329,47 @@ class Transform:
         try:
             p = subprocess.run(cmdline, check=True, text=True)
             print(p.stdout)
+            print(p.stderr)
+        except Exception as exc:
+            raise Exception('Failed to run plantuml: %s' % exc)
+        else:
+            if p.returncode != 0:
+                # plantuml returns a nice image in case of syntax error so log but still return out
+                print('Error in "uml" directive: %s' % p.stderr)
+
+    def convert_nwdiag_2_png(self, in_file_name):
+        """
+        convert a nwdiag file to png file
+        :return:
+        """
+        logger.debug("start convert_nwdiag_2_png, file_name=" + in_file_name)
+        nwdiag_filename = os.path.join(self.site_build_path, os.path.join("diagrams", in_file_name + ".diag"))
+        dest_filename = os.path.join(self.site_img_path, in_file_name + "." + self.diag_output_format)
+        ttf_opt = '--font=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
+        img_size = '--size=800x800'
+
+        with codecs.open(nwdiag_filename, 'r', self.encoding) as p:
+            for line in p.readlines():
+                if line.startswith('nwdiag'):
+                    cmdline = ['nwdiag', "-T", self.diag_output_format, ttf_opt, '-o', dest_filename, nwdiag_filename]
+                    exit
+                elif line.startswith('rackdiag'):
+                    cmdline = ['rackdiag', "-T", self.diag_output_format, ttf_opt, '-o', dest_filename, nwdiag_filename]
+                    exit
+                elif line.startswith('blockdiag'):
+                    cmdline = ['blockdiag', "-T", self.diag_output_format, ttf_opt, '-o', dest_filename, nwdiag_filename]
+                    exit
+                elif line.startswith('seqdiag'):
+                    cmdline = ['seqdiag', "-T", self.diag_output_format, ttf_opt, '-o', dest_filename, nwdiag_filename]
+                    exit
+                elif line.startswith('actdiag'):
+                    cmdline = ['actdiag', "-T", self.diag_output_format, ttf_opt, '-o', dest_filename, nwdiag_filename]
+                    exit
+
+        try:
+            p = subprocess.run(cmdline, check=True, text=True)
+            print(p.stdout)
+            print(p.stderr)
         except Exception as exc:
             raise Exception('Failed to run plantuml: %s' % exc)
         else:
@@ -339,9 +387,10 @@ class Transform:
         self.doc_toc = []
         menu_level_1 = 1
         puml_files_list = []
+        nwdiag_files_list = []
         index_page_toc = []
         index_page_exists = False
-        #self.combined_md_file.write('# ' + self.config_data[u'site_name'] + "\n\n")
+        # self.combined_md_file.write('# ' + self.config_data[u'site_name'] + "\n\n")
 
         makedirs(self.site_build_path)
         makedirs(os.path.join(self.site_build_path, 'diagrams'))
@@ -351,7 +400,8 @@ class Transform:
             lines_tmp = []
 
             # ignore if index.md file
-            if (page[u'file'] and not page[u'file'] == 'index.md') or (page[u'file'] and page[u'file'] == 'index.md' and self.include_index_page is True):
+            if (page[u'file'] and not page[u'file'] == 'index.md') or (
+                page[u'file'] and page[u'file'] == 'index.md' and self.include_index_page is True):
                 fname = os.path.join(self.docs_path, page[u'file'])
                 try:
                     # open the md document
@@ -364,6 +414,7 @@ class Transform:
                         not_in_code_block = True
                         in_meta = False
                         in_plantuml = False
+                        in_nwdiag = False
                         in_chapter_line = False
                         menu_level_2 = 0
                         menu_level_3 = 0
@@ -378,6 +429,8 @@ class Transform:
                         site_page = codecs.open(site_build_filename, 'w', encoding=self.encoding)
                         puml_file = None
                         puml_file_id = 1
+                        nwdiag_file = None
+                        nwdiag_file_id = 1
 
                         for line in p.readlines():
                             line_number += 1
@@ -394,6 +447,14 @@ class Transform:
                                         puml_file.close()
                                         puml_file = None
                                         puml_filename = None
+                                if in_nwdiag:
+                                    in_nwdiag = False
+                                    site_line = '\n'
+                                    if nwdiag_file is not None:
+                                        nwdiag_file.close()
+                                        nwdiag_file = None
+                                        nwdiag_filename = None
+                                        line = ''
 
                             if not_in_code_block is True:
                                 # replace link to other markdown page
@@ -402,16 +463,21 @@ class Transform:
                                 m = re.search('\[(.*?)]\(#(.*?)\)', line)
                                 if m:
                                     logger.debug("line match1 " + m.group(1) + " " + m.group(2) + ' for line=' + line)
-                                    line = re.sub('\[(.*?)]\(#', '[<a href="#menu_' + re.sub(' ', '-', m.group(2)) + '">' + m.group(1) + '</a>](#', line)
-                                    line = re.sub(']\(#(.*?)\)', '](#menu_' + re.sub(' ', '-',  m.group(2)) + ')', line)
-                                    #line = re.sub(']\(#(.*?)\)', '](#menu_\\1)', line)
+                                    line = re.sub('\[(.*?)]\(#',
+                                                  '[<a href="#menu_' + re.sub(' ', '-', m.group(2)) + '">' + m.group(
+                                                      1) + '</a>](#', line)
+                                    line = re.sub(']\(#(.*?)\)', '](#menu_' + re.sub(' ', '-', m.group(2)) + ')', line)
+                                    # line = re.sub(']\(#(.*?)\)', '](#menu_\\1)', line)
                                 else:
                                     m = re.search('\[(.*?)]\((.*?).md\)', line)
                                     if m:
-                                        logger.debug("line match2 " + m.group(1) + " " + m.group(2) + ' for line=' + line)
-                                        line = re.sub('\[(.*?)]\(', '[<a href="#page_' + re.sub(' ', '-', m.group(2)) + '.md">' + m.group(1) + '</a>](', line)
-                                        line = re.sub(']\((.*?)\)', '](#page_' + re.sub(' ', '-',  m.group(2)) + ')', line)
-                                    #line = re.sub(']\((.*?).md\)', '](#page_\\1.md)', line)
+                                        logger.debug(
+                                            "line match2 " + m.group(1) + " " + m.group(2) + ' for line=' + line)
+                                        line = re.sub('\[(.*?)]\(', '[<a href="#page_' + re.sub(' ', '-', m.group(
+                                            2)) + '.md">' + m.group(1) + '</a>](', line)
+                                        line = re.sub(']\((.*?)\)', '](#page_' + re.sub(' ', '-', m.group(2)) + ')',
+                                                      line)
+                                    # line = re.sub(']\((.*?).md\)', '](#page_\\1.md)', line)
 
                                 # copy images
                                 # search for image
@@ -421,12 +487,12 @@ class Transform:
                                     logger.debug("copy image file: " + img_filename)
                                     img_filepath = Path(os.path.join(self.docs_path, img_filename))
                                     if img_filepath.exists() and img_filepath.is_file():
-                                        dest_img_filename = os.path.join(self.site_build_path,  img_filename)
+                                        dest_img_filename = os.path.join(self.site_build_path, img_filename)
                                         dest_img_filepath = Path(dest_img_filename)
                                         logger.debug("dest_img_filepath: " + str(dest_img_filepath.parent))
                                         if not dest_img_filepath.parent.exists():
                                             makedirs(str(dest_img_filepath.parent))
-                                        dest_img_filename = os.path.join(self.site_build_path,  img_filename)
+                                        dest_img_filename = os.path.join(self.site_build_path, img_filename)
                                         shutil.copy(os.path.join(self.docs_path, img_filename), dest_img_filename)
 
                                 in_chapter_line = False
@@ -436,7 +502,8 @@ class Transform:
                                 elif re.match(r'^#####', line):
                                     menu_level = 5
                                     menu_level_5 = menu_level_5 + 1
-                                    chapter_number = str(menu_level_1) + '.' + str(menu_level_2) + '.' + str(menu_level_3) + '.' + str(menu_level_4) + '.' + str(menu_level_5)
+                                    chapter_number = str(menu_level_1) + '.' + str(menu_level_2) + '.' + str(
+                                        menu_level_3) + '.' + str(menu_level_4) + '.' + str(menu_level_5)
                                     in_chapter_line = True
                                     chapter_line_title = (re.sub(r'^#####', '', line)).rstrip('\r\n')
 
@@ -444,7 +511,8 @@ class Transform:
                                     menu_level = 4
                                     menu_level_4 = menu_level_4 + 1
                                     menu_level_5 = 1
-                                    chapter_number = str(menu_level_1) + '.' + str(menu_level_2) + '.' + str(menu_level_3) + '.' + str(menu_level_4)
+                                    chapter_number = str(menu_level_1) + '.' + str(menu_level_2) + '.' + str(
+                                        menu_level_3) + '.' + str(menu_level_4)
                                     in_chapter_line = True
                                     chapter_line_title = (re.sub(r'^####', '', line)).rstrip('\r\n')
 
@@ -453,7 +521,8 @@ class Transform:
                                     menu_level_3 = menu_level_3 + 1
                                     menu_level_4 = 1
                                     menu_level_5 = 1
-                                    chapter_number = str(menu_level_1) + '.' + str(menu_level_2) + '.' + str(menu_level_3)
+                                    chapter_number = str(menu_level_1) + '.' + str(menu_level_2) + '.' + str(
+                                        menu_level_3)
                                     in_chapter_line = True
                                     chapter_line_title = (re.sub(r'^###', '', line)).rstrip('\r\n')
 
@@ -485,33 +554,39 @@ class Transform:
                                     if self.chapter_autonumbering is True:
                                         new_chapter_line_title = chapter_number + ' ' + chapter_line_title
                                         # For the index page of the pdf document
-                                        self.doc_toc.append('- [<a href="#' + menuid + '">' + '&nbsp;' * (menu_level - 1) * 2 + new_chapter_line_title + '</a>](#' + menuid + ')')
                                     else:
                                         new_chapter_line_title = '&nbsp;' * (menu_level - 1) * 2 + chapter_line_title
-                                        # For the index page of the pdf document
-                                        self.doc_toc.append('- [<a href="#' + menuid + '">' + new_chapter_line_title + '</a>](#' + menuid + ')')
+                                    line_toc = "".rjust(((menu_level - 1) * 2), ' ') + '- [<a href="#' + menuid + '">' + new_chapter_line_title + '</a>](#' + menuid + ')'
+                                    logger.debug('LINETOC: [' + line_toc + ']')
+                                    self.doc_toc.append(line_toc)
                                     # For web site, just rename the title
                                     site_line = "#" * menu_level + ' ' + new_chapter_line_title + '\n'
                                     # For pdf doc, need to increment by 1 the Menu level, + add span id to create the link to the page
                                     if menu_level == 1:
-                                        line = "#" * (menu_level + 1 ) + ' <span id="' + menuid + '">' + new_chapter_line_title \
-                                        + '</span><span id="page_' + page[u'file'] + '">&nbsp;</span>\n'
+                                        line = "#" * (
+                                                menu_level + 1) + ' <span id="' + menuid + '">' + new_chapter_line_title \
+                                               + '</span><span id="page_' + page[u'file'] + '">&nbsp;</span>\n'
                                         # Create index page for the web site
-                                        index_page_toc.append('- [' + new_chapter_line_title + '](' + page[u'file'] + ')')
+                                        index_page_toc.append(
+                                            '- [' + new_chapter_line_title + '](' + page[u'file'] + ')')
                                     else:
-                                        line = "#" * (menu_level + 1 ) + ' <span id="' + menuid + '">' + new_chapter_line_title \
-                                        + '</span><span id="menu_' + re.sub(' ', '-', chapter_line_title) + '">&nbsp;</span>\n'
+                                        line = "#" * (
+                                                menu_level + 1) + ' <span id="' + menuid + '">' + new_chapter_line_title \
+                                               + '</span><span id="menu_' + re.sub(' ', '-',
+                                                                                   chapter_line_title) + '">&nbsp;</span>\n'
 
                                 if line.startswith("---") and meta_line_number == 0:
                                     in_meta = True
 
                                 if line.startswith("---") and meta_line_number > 1:
                                     in_meta = False
+                                    line = ''
+                                    site_line = ''
 
                                 if in_meta is True:
                                     # remove meta data in the beginning of the page
-                                    line = '\n'
-                                    site_line = '\n'
+                                    line = ''
+                                    site_line = ''
                                     meta_line_number += 1
 
                                 if line.startswith("[TOC]"):
@@ -528,8 +603,9 @@ class Transform:
                                     l_buf = os.path.join("diagrams", base_puml_filename)
                                     puml_filename = os.path.join(self.site_build_path, l_buf + ".puml")
                                     puml_files_list.append(puml_filename)
-                                    logger.debug("generate puml file: " + puml_filename )
-                                    site_page.write("![Diagram " + str(puml_file_id) + "](images/" + base_puml_filename + ".png" + ")\n")
+                                    logger.debug("generate puml file: " + puml_filename)
+                                    site_page.write("![Diagram " + str(
+                                        puml_file_id) + "](images/" + base_puml_filename + ".png" + ")\n")
                                     puml_file = codecs.open(puml_filename, 'w', encoding=self.encoding)
                                     puml_file.write("@startuml\n")
                                     site_line = ''
@@ -538,6 +614,26 @@ class Transform:
                                     site_line = ''
                                     if puml_file is not None:
                                         puml_file.write(line)
+
+                                if line.startswith("```nwdiag") or line.startswith("```diag"):
+                                    # If plantuml code block, then create a dedicated puml file file for the diagram.
+                                    # mkdocs does not support puml code in markdown doc.
+                                    in_nwdiag = True
+                                    nwdiag_file_id = nwdiag_file_id + 1
+                                    base_nwdiag_filename = page[u'file'] + "_nwdiag_" + str(nwdiag_file_id)
+                                    nwdiag_filename = os.path.join(self.site_build_path, os.path.join("diagrams", base_nwdiag_filename + ".diag"))
+                                    nwdiag_files_list.append(base_nwdiag_filename)
+                                    logger.debug("generate diag file: " + nwdiag_filename)
+                                    site_page.write("![Diagram " + str(nwdiag_file_id) + "](images/" + base_nwdiag_filename + "." + self.diag_output_format + ")\n")
+                                    nwdiag_file = codecs.open(nwdiag_filename, 'w', encoding=self.encoding)
+                                    site_line = ''
+                                    line = "![Diagram " + str(nwdiag_file_id) + "](site/images/" + base_nwdiag_filename + "." + self.diag_output_format + ")\n"
+
+                                elif in_nwdiag:
+                                    site_line = ''
+                                    if nwdiag_file is not None:
+                                        nwdiag_file.write(line)
+                                    line = ''
 
                             mergedlines.append(line)
                             site_page.write(site_line)
@@ -575,6 +671,9 @@ class Transform:
         for puml_file in puml_files_list:
             self.convert_puml_2_png(puml_file)
 
+        for nwdiag_file in nwdiag_files_list:
+            self.convert_nwdiag_2_png(nwdiag_file)
+
     def load_config(self):
         """
         Read the mddoc.yml configuration file
@@ -590,8 +689,8 @@ class Transform:
 
         """ @TODO @BUG TypeError: self.config_data[u'docs_dir'] = 'docs' list indices must be integers or slices, not str
         """
-#        if not "docs_dir" in self.config_data:
-#            self.config_data[u'docs_dir'] = 'docs'
+        #        if not "docs_dir" in self.config_data:
+        #            self.config_data[u'docs_dir'] = 'docs'
         if "site_dir" not in self.config_data:
             self.config_data[u'site_dir'] = 'site'
 
@@ -599,7 +698,7 @@ class Transform:
             if 'pdf_out_filename' in self.config_data[u'extra']:
                 self.pdf_out_filename = os.path.join(self.build_path, self.config_data[u'extra'][u'pdf_out_filename'])
             else:
-                self.pdf_out_filename = os.path.join(self.build_path,'report.pdf')
+                self.pdf_out_filename = os.path.join(self.build_path, 'report.pdf')
 
         if 'filename' in self.config_data[u'extra']:
             self.filename = self.config_data[u'extra'][u'filename']
@@ -617,7 +716,7 @@ class Transform:
             self.do_get_git_history = self.config_data[u'extra'][u'git_history']
 
         if 'include_index_page' in self.config_data[u'extra']:
-            self.include_index_page =  self.config_data[u'extra'][u'include_index_page']
+            self.include_index_page = self.config_data[u'extra'][u'include_index_page']
 
         if 'chapter_autonumbering' in self.config_data[u'extra']:
             self.chapter_autonumbering = self.config_data[u'extra'][u'chapter_autonumbering']
@@ -670,7 +769,7 @@ class Transform:
         setenv("_GIT_DATE", self.git_date)
         setenv("_GIT_REPONAME", self.git_remote_url)
         setenv("_DOC_PATH", self.docs_path)
-        setenv("_BUILD_PATH", self.build_path)
+        setenv("_BUILD_DIR", self.build_path)
         setenv("_RUNTIME_PATH", self.mddoc_runtime_path)
         setenv("_RESOURCE_PATH", self.resource_path)
         setenv("_PDFOUTFILE", self.pdf_out_filename)
@@ -709,7 +808,7 @@ class Transform:
 
     def create_mkdoc_conf_file(self):
         """
-        Create the mkdoc configuration file
+        Create the mkdoc configuration file for the html site
         :return:
         """
         logger.debug("start create_mkdoc_conf_file")
@@ -719,8 +818,9 @@ class Transform:
         mkdocs_config_data = self.config_data
         mkdocs_config_data[u'docs_dir'] = self.site_build_path
         mkdocs_config_data[u'site_dir'] = self.site_path
+        mkdocs_config_data[u'remote_branch'] = self.git_remote_branch
         if self.include_table_of_contents is True:
-            mkdocs_config_data[u'nav'].insert(0,{'Table of Contents': 'table_of_contents.md'})
+            mkdocs_config_data[u'nav'].insert(0, {'Table of Contents': 'table_of_contents.md'})
 
         if self.do_get_git_history is True and self.git_version is not None:
             mkdocs_config_data[u'nav'].append({'Change record': 'change_record.md'})
@@ -742,33 +842,39 @@ class Transform:
 
 
 def main():
-
     logger.info("start main procedure")
     config_file: str = ""
     # Parse Arguments
     # doc : https://pymotw.com/2/argparse/
     parser = argparse.ArgumentParser(description='markdown to pdf converter')
-    parser.add_argument('-f', help='config file, relative path from project', action="store", dest="config_file", required=False)
-    parser.add_argument('-d', help='docs path, relative path from project', action="store", dest="docs_path", required=False)
+    parser.add_argument('-f', help='config file, relative path from project', action="store", dest="config_file",
+                        required=False)
+    parser.add_argument('-d', help='docs path, relative path from project', action="store", dest="docs_path",
+                        required=False)
     parser.add_argument('-p', help='project path', action="store", dest="project_path", required=False)
-    parser.add_argument('-b', help='build path, relative path from project', action="store", dest="build_path", required=False)
-    parser.add_argument('-l', help='Logging configuration File Name', action="store", dest="logging_config_filename", required=False,
+    parser.add_argument('-b', help='build path, relative path from project', action="store", dest="build_path",
+                        required=False)
+    parser.add_argument('-l', help='Logging configuration File Name', action="store", dest="logging_config_filename",
+                        required=False,
                         default="logging.ini")
-    parser.add_argument('-r', help='resource path, relative path from project', action="store", dest="resource_path", required=False)
-    parser.add_argument('-o', help='pdf output file name, relative path from project', action="store", dest="output_filename", required=False)
-    parser.add_argument('-s', help='site path, relative path from project', action="store", dest="site_path", required=False)
+    parser.add_argument('-r', help='resource path, relative path from project', action="store", dest="resource_path",
+                        required=False)
+    parser.add_argument('-o', help='pdf output file name, relative path from project', action="store",
+                        dest="output_filename", required=False)
+    parser.add_argument('-s', help='site path, relative path from project', action="store", dest="site_path",
+                        required=False)
     parser.add_argument('--version', action='version', version='%(prog)s 1.0')
     args = parser.parse_args()
     logger.debug(args)
-
 
     # load Logging configuration if file exists
     if os.path.exists(args.logging_config_filename):
         logging.config.fileConfig(args.logging_config_filename)
 
-    logger.debug("last update: July 28, 2020, 08:47")
+    logger.debug("last update: Oct 3, 2020, 12:00")
     t = Transform(config_filename=args.config_file, docs_path=args.docs_path, build_path=args.build_path,
-                  project_path=args.project_path, resource_path=args.resource_path, output_filename=args.output_filename,
+                  project_path=args.project_path, resource_path=args.resource_path,
+                  output_filename=args.output_filename,
                   site_path=args.site_path)
 
     t.load_config()
