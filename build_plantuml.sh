@@ -12,7 +12,7 @@ set -euo pipefail
 mkdir -p ${BUILD_PATH}
 
 GRAPHVIZ_VERSION="${GRAPHVIZ_VERSION:-2.44.0}"
-JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
+JAVA_HOME="${JAVA_HOME:-/usr/lib/jvm/java-11-openjdk-amd64}"
 export JAVA_HOME
 
 ${JAVA_HOME}/bin/java --version
