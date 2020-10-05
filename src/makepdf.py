@@ -739,7 +739,7 @@ class Transform:
         :return:
         """
         logger.debug("start export_env")
-        outfile = os.path.join(self.build_path, 'combined.env')
+        outfile = os.path.join("/tmp", 'combined.env')
         logger.debug("start building file: " + outfile)
         f = codecs.open(outfile, 'w', encoding=self.encoding)
 
@@ -799,7 +799,7 @@ class Transform:
         logger.debug("start clean")
         makedirs(self.build_path)
         delfile(os.path.join(self.build_path, 'combined.md'))
-        delfile(os.path.join(self.build_path, 'combined.env'))
+        delfile(os.path.join('/tmp', 'combined.env'))
         delfile(os.path.join(self.build_path, 'combined.html'))
         delfile(os.path.join(self.build_path, 'pdf-page1.html'))
         delfile(os.path.join(self.build_path, 'pdf-header.html'))
