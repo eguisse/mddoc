@@ -42,13 +42,13 @@ fi
 
 set -euo pipefail
 
-if [[ ! -f "${_BUILD_DIR}/combined.env" ]]
+if [[ ! -f "/tmp/combined.env" ]]
 then
-    echo "ERROR file not found: ${_BUILD_DIR}/combined.env"
+    echo "ERROR file not found: /tmp/combined.env"
     exit 1
 fi
 
-source ${_BUILD_DIR}/combined.env
+source /tmp/combined.env
 
 mkdir -p "${_SITE_PATH}"
 
