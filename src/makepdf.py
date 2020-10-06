@@ -327,9 +327,13 @@ class Transform:
         logger.debug("start convert_puml_2_png, file_name=" + in_file_name)
         cmdline = ['/usr/local/bin/plantuml', "-tpng", '-o', self.site_img_path, in_file_name]
         try:
-            p = subprocess.run(cmdline, check=True, text=True)
+            p = subprocess.run(cmdline, check=True, text=True, timeout=15)
             print(p.stdout)
-            print(p.stderr)
+        except subprocess.CalledProcessError as e:
+            logger.error('error when executing: ' + str(e.cmd))
+            logger.error('return code: ' + str(e.returncode))
+            logger.error('stdout: ' + str(e.stdout))
+            logger.error('stderr: ' + str(e.stderr))
         except Exception as exc:
             raise Exception('Failed to run plantuml: %s' % exc)
         else:
@@ -367,9 +371,13 @@ class Transform:
                     exit
 
         try:
-            p = subprocess.run(cmdline, check=True, text=True)
+            p = subprocess.run(cmdline, check=True, text=True, timeout=15)
             print(p.stdout)
-            print(p.stderr)
+        except subprocess.CalledProcessError as e:
+            logger.error('error when executing: ' + str(e.cmd))
+            logger.error('return code: ' + str(e.returncode))
+            logger.error('stdout: ' + str(e.stdout))
+            logger.error('stderr: ' + str(e.stderr))
         except Exception as exc:
             raise Exception('Failed to run plantuml: %s' % exc)
         else:
