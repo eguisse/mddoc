@@ -45,6 +45,8 @@ echo "$0 started at `date`"
 
 set -euo pipefail
 
+mkdir -p "${_BUILD_DIR}/site/images"
+
 echo "test internet access"
 curl -o /tmp/Archimate.puml "https://raw.githubusercontent.com/ebbypeter/Archimate-PlantUML/master/Archimate.puml"
 
@@ -89,7 +91,7 @@ cd /tmp/pandoc
 
 /srv/pandoc "${_BUILD_DIR}/combined.md" \
 --verbose \
---log="${_BUILD_PATH}/pandoc.log" \
+--log="${_BUILD_DIR}/pandoc.log" \
 --self-contained \
 --resource-path "${_BUILD_DIR}:${_DOC_PATH}:/tmp/pandoc" \
 ${_PANDOC_OPTS} \

@@ -10,7 +10,7 @@ set -x
 CURRENT_DIR="$(pwd)"
 MDDOC_WORKDIR="${MDDOC_WORKDIR:-CURRENT_DIR}"
 
-declare -gx _BUILD_PATH="${MDDOC_WORKDIR}/build"
+declare -gx _BUILD_DIR="${MDDOC_WORKDIR}/build"
 #declare -gx _MKDOC_CONFIG="mkdocs.yml"
 declare -gx _TITLE=""
 declare -gx _AUTHOR=""
@@ -54,13 +54,13 @@ then
   exit 1
 fi
 
-if [[ ! -f "${_BUILD_PATH}/combined.env" ]]
+if [[ ! -f "${_BUILD_DIR}/combined.env" ]]
 then
-    echo "ERROR file not found: ${_BUILD_PATH}/combined.env"
+    echo "ERROR file not found: ${_BUILD_DIR}/combined.env"
     exit 1
 fi
 
-source ${_BUILD_PATH}/combined.env
+source ${_BUILD_DIR}/combined.env
 
 if [[ ! -f "${_PDF_PAGE1_HTML}" ]]
 then
@@ -76,7 +76,7 @@ fi
 #
 
 
-envsubst "`printf '${%s} ' $(env|cut -d'=' -f1)`" < "${_PDF_PAGE1_HTML}" > "${_BUILD_PATH}/pdf-page1.html"
+envsubst "`printf '${%s} ' $(env|cut -d'=' -f1)`" < "${_PDF_PAGE1_HTML}" > "${_BUILD_DIR}/pdf-page1.html"
 CURRENT_DIR="$(pwd)"
 mkdir -p /tmp/pandoc
 cd /tmp/pandoc
@@ -84,11 +84,11 @@ cd /tmp/pandoc
 #--columns=60 \
 #--css="${_CSS_FILE}" \
 
-pandoc "${_BUILD_PATH}/combined.md" \
+pandoc "${_BUILD_DIR}/combined.md" \
 --verbose \
---log="${_BUILD_PATH}/pandoc.log" \
+--log="${_BUILD_DIR}/pandoc.log" \
 --self-contained \
---resource-path "${_BUILD_PATH}:${_DOC_PATH}:/tmp/pandoc" \
+--resource-path "${_BUILD_DIR}:${_DOC_PATH}:/tmp/pandoc" \
 -f gfm+smart \
 -t docx \
 -s -o "${_PDFOUTFILE}.docx" \
@@ -98,7 +98,7 @@ pandoc "${_BUILD_PATH}/combined.md" \
 --highlight-style espresso \
 --columns=80 \
 --css="${_CSS_FILE}" \
---include-before-body="${_BUILD_PATH}/pdf-page1.html"
+--include-before-body="${_BUILD_DIR}/pdf-page1.html"
 
 if [ $? -ne 0 ]
 then

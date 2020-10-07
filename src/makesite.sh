@@ -30,6 +30,7 @@ set -uo pipefail
 
 
 mkdir -p "${_BUILD_DIR}"
+mkdir -p "${_BUILD_DIR}/site/images"
 
 touch "${_BUILD_DIR}/touchfile.txt"
 

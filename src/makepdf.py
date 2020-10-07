@@ -61,6 +61,7 @@ def makedirs(dirname: str):
         except FileExistsError as e:
             logger.error(e, exc_info=True)
             logger.error("ERROR cannot create directory: " + dirname)
+            raise
 
 
 class Transform:

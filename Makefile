@@ -133,6 +133,13 @@ test-docker-site:  ## Run docker container for test convert to site
 	mkdir $(CURRENT_DIR)/site
 	docker run -it --rm -v "$(CURRENT_DIR):/mnt:rw" "mddoc:latest" bash makesite.sh -d docs -b build -r src/resources -f mddoc.yml -s site
 
+
+test-docker-pdfandsite:  ## Run docker container for test convert to pdf
+	@echo 'start test-docker-pdf for project path $(REPO_DOC_TEST)'
+	rm -Rf $(CURRENT_DIR)/site
+	mkdir $(CURRENT_DIR)/site
+	docker run -it --rm -v "$(PROJECT_DIR):/mnt:rw" "mddoc:latest" bash makepdfandsite.sh -d docs -b build -o build/mddoc-docker-test.pdf -r src/resources -f mddoc.yml -s site
+
 test-md: clean  ## test markdown transformation
 	source venv/bin/activate && export PYTHONPATH=$(CURRENT_DIR)/src && python3 src/makepdf.py -f $(CURRENT_DIR)/mddoc.yml -p $(CURRENT_DIR) -b $(CURRENT_DIR)/build -d docs -r src/resources
 

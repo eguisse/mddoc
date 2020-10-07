@@ -59,6 +59,8 @@ echo "$0 started at `date`"
 
 set -euo pipefail
 
+mkdir -p "${_BUILD_DIR}/site/images"
+
 echo "test internet access"
 curl -o /tmp/Archimate.puml "https://raw.githubusercontent.com/ebbypeter/Archimate-PlantUML/master/Archimate.puml"
 
