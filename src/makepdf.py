@@ -519,7 +519,7 @@ class Transform:
                                 elif re.match(r'^####', line):
                                     menu_level = 4
                                     menu_level_4 = menu_level_4 + 1
-                                    menu_level_5 = 1
+                                    menu_level_5 = 0
                                     chapter_number = str(menu_level_1) + '.' + str(menu_level_2) + '.' + str(
                                         menu_level_3) + '.' + str(menu_level_4)
                                     in_chapter_line = True
@@ -528,8 +528,8 @@ class Transform:
                                 elif re.match(r'^###', line):
                                     menu_level = 3
                                     menu_level_3 = menu_level_3 + 1
-                                    menu_level_4 = 1
-                                    menu_level_5 = 1
+                                    menu_level_4 = 0
+                                    menu_level_5 = 0
                                     chapter_number = str(menu_level_1) + '.' + str(menu_level_2) + '.' + str(
                                         menu_level_3)
                                     in_chapter_line = True
@@ -538,9 +538,9 @@ class Transform:
                                 elif re.match(r'^##', line):
                                     menu_level = 2
                                     menu_level_2 = menu_level_2 + 1
-                                    menu_level_3 = 1
-                                    menu_level_4 = 1
-                                    menu_level_5 = 1
+                                    menu_level_3 = 0
+                                    menu_level_4 = 0
+                                    menu_level_5 = 0
                                     chapter_number = str(menu_level_1) + '.' + str(menu_level_2)
                                     in_chapter_line = True
                                     chapter_line_title = (re.sub(r'^##', '', line)).rstrip('\r\n')
@@ -548,10 +548,10 @@ class Transform:
                                 elif re.match(r'^#', line):
                                     menu_level = 1
                                     menu_level_1 = menu_level_1 + 1
-                                    menu_level_2 = 1
-                                    menu_level_3 = 1
-                                    menu_level_4 = 1
-                                    menu_level_4 = 1
+                                    menu_level_2 = 0
+                                    menu_level_3 = 0
+                                    menu_level_4 = 0
+                                    menu_level_5 = 0
                                     chapter_number = str(menu_level_1)
                                     in_chapter_line = True
                                     chapter_line_title = (re.sub(r'^#', '', line)).rstrip('\r\n')
@@ -661,7 +661,10 @@ class Transform:
             # Create table_of_contents.md page for site
             site_build_filename = os.path.join(self.site_build_path, 'table_of_contents.md')
             site_page = codecs.open(site_build_filename, 'w', encoding=self.encoding)
-            site_page.write('# Table of Contents\n\n')
+            if self.chapter_autonumbering is True:
+                site_page.write('# 1 Table of Contents\n\n')
+            else:
+                site_page.write('# Table of Contents\n\n')
             for lline in index_page_toc:
                 site_page.write(lline + '\n')
             site_page.write('\n')
@@ -669,7 +672,10 @@ class Transform:
 
             # For pdf doc:
             # write TOC
-            self.combined_md_file.write('\n## Table of Contents\n\n')
+            if self.chapter_autonumbering is True:
+                self.combined_md_file.write('\n## 1 Table of Contents\n\n')
+            else:
+                self.combined_md_file.write('\n## Table of Contents\n\n')
             for lline in self.doc_toc:
                 self.combined_md_file.write(lline + '\n')
             self.combined_md_file.write('\n\n<div class=\"new-page\"></div>\n\n')

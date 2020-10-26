@@ -45,6 +45,7 @@ echo "$0 started at `date`"
 
 set -euo pipefail
 
+mkdir -p "${_BUILD_DIR}"
 mkdir -p "${_BUILD_DIR}/site/images"
 
 echo "test internet access"
@@ -181,6 +182,7 @@ echo ""
 echo "pdf output file is: ${_PDFOUTFILE}"
 echo ""
 echo "creating site ..."
+
 
 mkdir -p "${_SITE_PATH}"
 
