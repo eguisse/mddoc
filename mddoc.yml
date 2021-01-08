@@ -41,10 +41,11 @@ extra:
 
 
 nav:
+  - Approvers and Reviewers: doc_review.md
   - Home: index.md
   - Introduction: introduction.md
   - Processes: process.md
-  - nwdiag.md
+  - Network diagram: nwdiag.md
 
 
 theme:

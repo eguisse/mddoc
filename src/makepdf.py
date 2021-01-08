@@ -394,7 +394,7 @@ class Transform:
         logger.debug("start create_menu")
         mergedlines = []
         self.doc_toc = []
-        menu_level_1 = 1
+        menu_level_1 = 0
         puml_files_list = []
         nwdiag_files_list = []
         index_page_toc = []
@@ -409,7 +409,7 @@ class Transform:
             lines_tmp = []
 
             # ignore if index.md file
-            if (page[u'file'] and not page[u'file'] == 'index.md') or (
+            if (page[u'file'] and not page[u'file'] == 'index.md' and page[u'file'] == 'doc_review.md') or (
                 page[u'file'] and page[u'file'] == 'index.md' and self.include_index_page is True):
                 fname = os.path.join(self.docs_path, page[u'file'])
                 try:
@@ -656,6 +656,23 @@ class Transform:
                 # we are in page index.md and self.include_index_page is False
                 index_page_exists = True
 
+        #
+        # Build the Combined document
+        #
+
+        # if exists , first insert the Approvers and Reviewers page
+        doc_review_fname = os.path.join(self.docs_path, "doc_review.md")
+        if os.path.isfile(doc_review_fname):
+            try:
+                # open the md document
+                with codecs.open(doc_review_fname, 'r', self.encoding) as p:
+                    for line in p.readlines():
+                        self.combined_md_file.write(line)
+                self.combined_md_file.write('\n\n<div class=\"new-page\"></div>\n\n')
+            except IOError as e:
+                raise Exception("Couldn't open %s for reading: %s" % (doc_review_fname, e.strerror), 1)
+
+        # Build the table of contents
         if self.include_table_of_contents is True:
             # For the web site:
             # Create table_of_contents.md page for site
@@ -673,7 +690,7 @@ class Transform:
             # For pdf doc:
             # write TOC
             if self.chapter_autonumbering is True:
-                self.combined_md_file.write('\n## 1 Table of Contents\n\n')
+                self.combined_md_file.write('\n## Table of Contents\n\n')
             else:
                 self.combined_md_file.write('\n## Table of Contents\n\n')
             for lline in self.doc_toc:
