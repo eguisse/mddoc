@@ -409,7 +409,7 @@ class Transform:
             lines_tmp = []
 
             # ignore if index.md file
-            if (page[u'file'] and not page[u'file'] == 'index.md' and page[u'file'] == 'doc_review.md') or (
+            if (page[u'file'] and not page[u'file'] == 'index.md' and not page[u'file'] == 'doc_reviewers.md') or (
                 page[u'file'] and page[u'file'] == 'index.md' and self.include_index_page is True):
                 fname = os.path.join(self.docs_path, page[u'file'])
                 try:
@@ -660,18 +660,6 @@ class Transform:
         # Build the Combined document
         #
 
-        # if exists , first insert the Approvers and Reviewers page
-        doc_review_fname = os.path.join(self.docs_path, "doc_review.md")
-        if os.path.isfile(doc_review_fname):
-            try:
-                # open the md document
-                with codecs.open(doc_review_fname, 'r', self.encoding) as p:
-                    for line in p.readlines():
-                        self.combined_md_file.write(line)
-                self.combined_md_file.write('\n\n<div class=\"new-page\"></div>\n\n')
-            except IOError as e:
-                raise Exception("Couldn't open %s for reading: %s" % (doc_review_fname, e.strerror), 1)
-
         # Build the table of contents
         if self.include_table_of_contents is True:
             # For the web site:
@@ -705,6 +693,27 @@ class Transform:
 
         for nwdiag_file in nwdiag_files_list:
             self.convert_nwdiag_2_png(nwdiag_file)
+
+    def reviewers_page(self):
+        """
+        if exists , first insert the Approvers and Reviewers page
+        :return:
+        """
+        logger.debug("start reviewers_page")
+        #
+        doc_review_fname = os.path.join(self.docs_path, "doc_reviewers.md")
+        if os.path.isfile(doc_review_fname):
+            try:
+                # open the md document
+                with codecs.open(doc_review_fname, 'r', self.encoding) as p:
+                    for line in p.readlines():
+                        if line.startswith("#"):
+                            self.combined_md_file.write("#" + line)
+                        else:
+                            self.combined_md_file.write(line)
+                self.combined_md_file.write('\n\n<div class=\"new-page\"></div>\n\n')
+            except IOError as e:
+                raise Exception("Couldn't open %s for reading: %s" % (doc_review_fname, e.strerror), 1)
 
     def load_config(self):
         """
@@ -914,6 +923,8 @@ def main():
     t.clean()
 
     t.open_file_combined()
+
+    t.reviewers_page()
 
     if t.do_get_git_history is True:
         t.get_git_history()

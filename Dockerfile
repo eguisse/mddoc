@@ -31,10 +31,10 @@ RUN pip3 install wheel && pip3 install -r /srv/requirements.txt
 # Get Last version of pandoc
 RUN chmod 777 /srv
 WORKDIR /srv
-RUN /bin/bash -c 'wget "https://github.com/jgm/pandoc/releases/download/2.10.1/pandoc-2.10.1-linux-amd64.tar.gz" \
-    && tar -zxvf "/srv/pandoc-2.10.1-linux-amd64.tar.gz" \
-    && ln -s "/srv/pandoc-2.10.1/bin/pandoc" "/srv/pandoc" \
-    && ln -s "/srv/pandoc-2.10.1/bin/pandoc-citeproc" "/srv/pandoc-citeproc"'
+RUN /bin/bash -c 'wget "https://github.com/jgm/pandoc/releases/download/2.11.3.2/pandoc-2.11.3.2-linux-amd64.tar.gz" \
+    && tar -zxvf "/srv/pandoc-2.11.3.2-linux-amd64.tar.gz" \
+    && ln -s "/srv/pandoc-2.11.3.2/bin/pandoc" "/srv/pandoc" \
+    && ln -s "/srv/pandoc-2.11.3.2/bin/pandoc-citeproc" "/srv/pandoc-citeproc"'
 
 #COPY build/wkhtmltox.focal_amd64.deb /opt/
 #RUN dpkg -i /opt/wkhtmltox.focal_amd64.deb
