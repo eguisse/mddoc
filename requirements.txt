@@ -1,4 +1,4 @@
-GitPython==3.1.8
+GitPython==3.1.12
 bios==0.1.2
 pandoc-plantuml-filter==0.1.2
 mkdocs==1.1.2

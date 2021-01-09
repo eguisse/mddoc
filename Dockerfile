@@ -31,17 +31,21 @@ RUN pip3 install wheel && pip3 install -r /srv/requirements.txt
 # Get Last version of pandoc
 RUN chmod 777 /srv
 WORKDIR /srv
-RUN /bin/bash -c 'wget "https://github.com/jgm/pandoc/releases/download/2.11.3.2/pandoc-2.11.3.2-linux-amd64.tar.gz" \
+RUN /bin/bash -c 'wget --quiet "https://github.com/jgm/pandoc/releases/download/2.11.3.2/pandoc-2.11.3.2-linux-amd64.tar.gz" \
     && tar -zxvf "/srv/pandoc-2.11.3.2-linux-amd64.tar.gz" \
     && ln -s "/srv/pandoc-2.11.3.2/bin/pandoc" "/srv/pandoc" \
     && ln -s "/srv/pandoc-2.11.3.2/bin/pandoc-citeproc" "/srv/pandoc-citeproc"'
 
 #COPY build/wkhtmltox.focal_amd64.deb /opt/
 #RUN dpkg -i /opt/wkhtmltox.focal_amd64.deb
-RUN /bin/bash -c 'curl --output /tmp/wkhtmltox.focal_amd64.deb http://storage.googleapis.com/engineering-doc-egitc-com/dist/wkhtmltox.focal_amd64.deb && \
+#RUN /bin/bash -c 'curl --output /tmp/wkhtmltox.focal_amd64.deb http://storage.googleapis.com/engineering-doc-egitc-com/dist/wkhtmltox.focal_amd64.deb && \
+#    dpkg -i /tmp/wkhtmltox.focal_amd64.deb && \
+#    rm /tmp/wkhtmltox.focal_amd64.deb'
+
+
+RUN /bin/bash -c 'wget --quiet --output-document=/tmp/wkhtmltox.focal_amd64.deb https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.focal_amd64.deb && \
     dpkg -i /tmp/wkhtmltox.focal_amd64.deb && \
     rm /tmp/wkhtmltox.focal_amd64.deb'
-
 
 RUN /bin/bash -c 'chmod a+wx *.sh'
 

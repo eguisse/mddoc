@@ -64,7 +64,7 @@ build-wkhtmltopdf-requirments:  ## install requirements to build wkhtmltopdf
 	sudo apt install -y python-yaml docker.io vagrant virtualbox p7zip-full python3.8-venv
 
 # doc ref: https://github.com/wkhtmltopdf/packaging
-build-wkhtmltopdf: clean-wkhtmltopdf build-py-venv  ## Build wkhtmltopdf old
+build-wkhtmltopdf: clean-wkhtmltopdf build-py-venv  ## Build wkhtmltopdf
 	@echo 'start build-wkhtmltopd'
 	WP_DIR=$(PROJECT_DIR)/build/wp
 	mkdir -p $(PROJECT_DIR)/build/wp
