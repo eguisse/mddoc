@@ -102,10 +102,13 @@ class Transform:
             self.project_path = project_path
 
         self.docs_path: str = None
+        self.rel_docs_path: str = None
         if docs_path is None:
             self.docs_path = os.path.join(self.project_path, "doc")
+            self.rel_docs_path = "doc"
         else:
             self.docs_path = os.path.join(self.project_path, docs_path)
+            self.rel_docs_path = docs_path
 
         self.config_filename: str = None
         if config_filename is None:
@@ -187,6 +190,9 @@ class Transform:
         self.git_history = []
         self.git_remote_branch = 'master'
         self.diag_output_format = 'png'
+        self.doc_reviewers_page_exists = False
+        self.doc_reviewers_page_name = "doc_reviewers.md"
+        self.doc_reviewers_page_title: str = ""
 
     def parsefile(filename):
         logger.debug("start parsefile")
@@ -711,9 +717,13 @@ class Transform:
                             self.combined_md_file.write("#" + line)
                         else:
                             self.combined_md_file.write(line)
+                        if line.startswith("# "):
+                            self.doc_reviewers_page_title = line[2:].strip()
                 self.combined_md_file.write('\n\n<div class=\"new-page\"></div>\n\n')
             except IOError as e:
                 raise Exception("Couldn't open %s for reading: %s" % (doc_review_fname, e.strerror), 1)
+            shutil.copy(doc_review_fname, os.path.join(self.site_build_path, 'doc_reviewers.md'))
+            self.doc_reviewers_page_exists = True
 
     def load_config(self):
         """
@@ -764,6 +774,10 @@ class Transform:
 
         if 'include_table_of_contents' in self.config_data[u'extra']:
             self.include_table_of_contents = self.config_data[u'extra'][u'include_table_of_contents']
+
+        if 'doc_reviewers_page_name' in self.config_data[u'extra']:
+            self.doc_reviewers_page_name = self.config_data[u'extra'][u'doc_reviewers_page_name']
+
 
         logger.debug("docs_path=" + self.docs_path)
         logger.debug("site_dir=" + self.config_data[u'site_dir'])
@@ -849,7 +863,8 @@ class Transform:
 
     def create_mkdoc_conf_file(self):
         """
-        Create the mkdoc configuration file for the html site
+        Create the mkdoc configuration file build/mkdocs.yaml for the html site
+
         :return:
         """
         logger.debug("start create_mkdoc_conf_file")
@@ -860,11 +875,15 @@ class Transform:
         mkdocs_config_data[u'docs_dir'] = self.site_build_path
         mkdocs_config_data[u'site_dir'] = self.site_path
         mkdocs_config_data[u'remote_branch'] = self.git_remote_branch
+        mkdocs_config_data[u'edit_uri'] = "edit/" + self.git_remote_branch + "/" + self.rel_docs_path
         if self.include_table_of_contents is True:
             mkdocs_config_data[u'nav'].insert(0, {'Table of Contents': 'table_of_contents.md'})
 
         if self.do_get_git_history is True and self.git_version is not None:
             mkdocs_config_data[u'nav'].append({'Change record': 'change_record.md'})
+
+        if self.doc_reviewers_page_exists is True:
+            mkdocs_config_data[u'nav'].append({self.doc_reviewers_page_title: self.doc_reviewers_page_name})
 
         logger.debug("create file: " + self.mkdocs_config_filename)
         with open(os.path.join(self.build_path, self.mkdocs_config_filename), 'w') as mkdocs_config_file:

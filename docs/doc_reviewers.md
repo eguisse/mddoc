@@ -2,20 +2,20 @@
 
 ## Approvers
 
-| Position     | Name   |
-|--------------|--------|
-| Manager      | Lisa Simpson |
+| Position                    | Name                      |
+|-----------------------------|---------------------------|
+| Manager                     | Lisa Simpson              |
 
 
 ## Reviewers
 
-| Position        | Name   |
-|-----------------|--------|
-| Security lead   | Bart Simpson |
+| Position                    | Name                      |
+|-----------------------------|---------------------------|
+| Security lead               | Bart Simpson              |
 
 
 ## Distribution
 
-| Position        | Name   |
-|-----------------|--------|
-| CEO             | Charles Montgomery Burns |
+| Position                    | Name                      |
+|-----------------------------|---------------------------|
+| CEO                         | Charles Montgomery Burns  |

@@ -4,6 +4,7 @@
 #
 # Copyright (c) 2019 2020, EGITC and/or its affiliates. All rights reserved.
 #
+
 set -x
 
 # global parameters
@@ -28,13 +29,13 @@ declare -gx _GIT_REPONAME=""
 declare -gx _CONFIDENTIALITY=""
 declare -gx _PDFOUTFILE="report.pdf"
 declare -gx _RESOURCE_PATH=""
-#declare -gx _WKHTMLTOPDF_OPTS="--dpi 300 --print-media-type --minimum-font-size 2 -B 25mm -L 10mm -R 5mm -T 25mm -O Portrait -s A4 --page-size A4 "
 declare -gx _WKHTMLTOPDF_OPTS="--dpi 300 --minimum-font-size 2 -B 25mm -L 10mm -R 5mm -T 25mm -O Portrait -s A4 --page-size A4 --header-spacing 10 --footer-spacing 5 "
 declare -gx _DOC_PATH=""
 declare -gx _COMPANY_NAME=""
 declare -gx _COMPANY_URL=""
 declare -gx _PANDOC_OPTS="-f gfm+smart --filter pandoc-plantuml --highlight-style espresso --columns=80 --wrap=auto"
 declare -gx _PDF_META_KEYWORDS=""
+declare -gx _SITE_PATH=""
 
 export XDG_RUNTIME_DIR=/tmp/runtime-$$
 export DEBUG=1
@@ -45,7 +46,6 @@ echo "$0 started at `date`"
 
 set -euo pipefail
 
-mkdir -p "${_BUILD_DIR}"
 mkdir -p "${_BUILD_DIR}/site/images"
 
 echo "test internet access"
@@ -116,7 +116,11 @@ then
   exit 1
 fi
 
+# Convert single html5 to pdf
+#
+
 echo "start conv2pdf"
+
 
 envsubst "`printf '${%s} ' $(env|cut -d'=' -f1)`" \
   < "${_PDF_HEADER_HTML}" > "${_BUILD_DIR}/pdf-header.html"
@@ -171,12 +175,12 @@ exiftool \
 	-Subject="${_SUBJECT}" \
 	"${_PDFOUTFILE}"
 
-
 if [[ $? -ne 0 ]]
 then
 	echo "ERROR: myexiftool: exiftool finished with error" >&2
 	exit 1
 fi
+
 
 echo ""
 echo "pdf output file is: ${_PDFOUTFILE}"
