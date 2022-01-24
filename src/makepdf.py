@@ -4,7 +4,7 @@
   Makefile to generate the html and pdf file.
   It combines multiple md files into 1 combined md file.
 
-  Copyright (c) 2018 - 2020, Emmanuel GUISSE
+  Copyright (c) 2022, Emmanuel GUISSE
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -820,8 +820,14 @@ class Transform:
         setenv("_COMPANY_NAME", self.config_data[u'extra'][u'company_name'])
         setenv("_COMPANY_URL", self.config_data[u'extra'][u'company_url'])
         setenv("_OWNER", self.config_data[u'extra'][u'document_owner'])
-        setenv("_GIT_VERSION", self.git_version)
-        setenv("_GIT_DATE", self.git_date)
+        if self.git_version is not None:
+            setenv("_GIT_VERSION", self.git_version)
+        else:
+            setenv("_GIT_VERSION", self.config_data[u'extra'][u'version'])
+        if self.git_date is not None:
+            setenv("_GIT_DATE", self.git_date)
+        else:
+            setenv("_GIT_DATE", self.config_data[u'extra'][u'published_date'])
         setenv("_GIT_REPONAME", self.git_remote_url)
         setenv("_DOC_PATH", self.docs_path)
         setenv("_BUILD_DIR", self.build_path)

@@ -32,7 +32,7 @@ export $(shell sed 's/=.*//' $(cnf))
 SHELL := /bin/bash
 # grep the version from the mix file
 VERSION=$(shell cat VERSION)
-CURRENT_DIR=$(shell pwd)
+CURRENT_DIR=$(shell dirname "$(readlink -f "$0")")
 ifeq ($(strip $(PROJECT_DIR)), )
 PROJECT_DIR := $(CURRENT_DIR)
 endif
@@ -54,7 +54,7 @@ clean-py-venv:  ## Delete python virtual environment
 
 build-py-venv: clean-py-venv   ## Build python virtual environment
 	@echo 'start build-venv'
-	python3.8 -m venv $(PROJECT_DIR)/venv
+	python3 -m venv $(PROJECT_DIR)/venv
 	source $(PROJECT_DIR)/venv/bin/activate && pip3 install wheel && pip3 install -r requirements.txt
 
 clean-wkhtmltopdf:
@@ -89,30 +89,40 @@ run-docker-img-mddoc_build:    ## Run Docker image mddoc_build used for compilat
 # Build the container
 build-docker-image:  ## Build the docker image
 	@echo 'start build in $(PROJECT_DIR)'
-	docker build $(DOCKER_BUILD_OPT) -t mddoc $(PROJECT_DIR)
+	docker build $(DOCKER_BUILD_OPT) \
+	-t "$(IMAGE_NAME):$(VERSION)-snapshot"  \
+	--build-arg VERSION \
+	--build-arg PANDOC_VERSION \
+	--build-arg WKHTMLTOPDF_VERSION \
+	$(PROJECT_DIR)
 
-build-docker-image-nc: ## Build the docker image without caching
-	docker build $(DOCKER_BUILD_OPT) --no-cache -t mddoc $(PROJECT_DIR)
+build-docker-image-nc:  ## Build the docker image without caching
+	docker build $(DOCKER_BUILD_OPT) --no-cache \
+	-t "$(IMAGE_NAME):$(VERSION)-snapshot"  \
+	--build-arg VERSION \
+	--build-arg PANDOC_VERSION \
+	--build-arg WKHTMLTOPDF_VERSION \
+	$(PROJECT_DIR)
 
-build: venv build-wkhtmltopdf build-plantuml build-docker-image  ## Build all
+build: build-plantuml build-docker-image  ## Build all
 	@echo 'start build'
 
-publish: tag-latest ## Publish the `latest` taged container to ECR
+publish: tag-latest  ## Publish the `latest` tagged container to docker hub
 	@echo 'publish latest to $(DOCKER_REPO)'
-	docker push $(DOCKER_REPO)/$(APP_NAME):latest
+	docker push $(DOCKER_REPO)/$(IMAGE_NAME):latest
 	@echo 'publish $(VERSION) to $(DOCKER_REPO)'
-	docker push $(DOCKER_REPO)/$(APP_NAME):$(VERSION)
+	docker push $(DOCKER_REPO)/$(IMAGE_NAME):$(VERSION)
 
 # Docker tagging
 tag: tag-latest tag-version ## Generate container tags for the `{version}` ans `latest` tags
 
 tag-latest: ## Generate container `{version}` tag
 	@echo 'create tag latest'
-	docker tag $(APP_NAME) $(DOCKER_REPO)/$(APP_NAME):latest
+	docker tag "$(IMAGE_NAME):$(VERSION)-snapshot" $(DOCKER_REPO)/$(IMAGE_NAME):latest
 
 tag-version: ## Generate container `latest` tag
 	@echo 'create tag $(VERSION)'
-	docker tag $(APP_NAME) $(DOCKER_REPO)/$(APP_NAME):$(VERSION)
+	docker tag "$(IMAGE_NAME):$(VERSION)-snapshot" $(DOCKER_REPO)/$(IMAGE_NAME):$(VERSION)
 
 # testing
 
@@ -121,17 +131,17 @@ clean:  ## delete test build files
 
 test-docker-pdf:  ## Run docker container for test convert to pdf
 	@echo 'start test-docker-pdf for project path $(REPO_DOC_TEST)'
-	docker run -it --rm -v "$(PROJECT_DIR):/mnt:rw" "mddoc:latest" bash makepdf.sh -d docs -b build -o build/mddoc-docker-test.pdf -r src/resources -f mddoc.yml
+	docker run -it --rm -v "$(PROJECT_DIR):/mnt:rw" "$(IMAGE_NAME):$(VERSION)-snapshot" bash makepdf.sh -d docs -b build -o build/mddoc-docker-test.pdf -r src/resources -f mddoc.yml
 
 test-docker-bash:  ## run docker container and execute bash
 	@echo 'start test-docker-bash for project path $(REPO_DOC_TEST)'
-	docker run -it --rm -v "$(CURRENT_DIR):/mnt:rw" "mddoc:latest" bash
+	docker run -it --rm -v "$(CURRENT_DIR):/mnt:rw" "$(IMAGE_NAME):$(VERSION)-snapshot" bash
 
 test-docker-site:  ## Run docker container for test convert to site
 	@echo 'start test-docker-site for project path $(REPO_DOC_TEST)'
 	rm -Rf $(CURRENT_DIR)/site
 	mkdir $(CURRENT_DIR)/site
-	docker run -it --rm -v "$(CURRENT_DIR):/mnt:rw" "mddoc:latest" bash makesite.sh -d docs -b build -r src/resources -f mddoc.yml -s site
+	docker run -it --rm -v "$(CURRENT_DIR):/mnt:rw" "$(IMAGE_NAME):$(VERSION)-snapshot" bash makesite.sh -d docs -b build -r src/resources -f mddoc.yml -s site
 
 
 test-docker-pdfandsite:  ## Run docker container for test convert to pdf

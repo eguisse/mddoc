@@ -61,7 +61,7 @@ set -euo pipefail
 mkdir -p "${_BUILD_DIR}/site/images"
 
 echo "test internet access"
-curl -o /tmp/Archimate.puml "https://raw.githubusercontent.com/ebbypeter/Archimate-PlantUML/master/Archimate.puml"
+curl -o /tmp/test.png "https://www.wikipedia.org/static/apple-touch/wikipedia.png"
 
 
 python3 ${MDDOC_RUNTIME_PATH}/makepdf.py $@
@@ -102,6 +102,15 @@ cd /tmp/pandoc
 #--columns=60 \
 #--css="${_CSS_FILE}" \
 
+
+
+envsubst "`printf '${%s} ' $(env|cut -d'=' -f1)`" \
+  < "${_PDF_HEADER_HTML}" > "${_BUILD_DIR}/pdf-header.html"
+
+envsubst "`printf '${%s} ' $(env|cut -d'=' -f1)`" \
+  < "${_PDF_FOOTER_HTML}"> "${_BUILD_DIR}/pdf-footer.html"
+
+
 /srv/pandoc "${_BUILD_DIR}/combined.md" \
 --verbose \
 --log="${_BUILD_DIR}/pandoc.log" \
@@ -132,13 +141,6 @@ fi
 #
 
 echo "start conv2pdf"
-
-
-envsubst "`printf '${%s} ' $(env|cut -d'=' -f1)`" \
-  < "${_PDF_HEADER_HTML}" > "${_BUILD_DIR}/pdf-header.html"
-
-envsubst "`printf '${%s} ' $(env|cut -d'=' -f1)`" \
-  < "${_PDF_FOOTER_HTML}"> "${_BUILD_DIR}/pdf-footer.html"
 
 wkhtmltopdf \
     ${_WKHTMLTOPDF_OPTS} \
