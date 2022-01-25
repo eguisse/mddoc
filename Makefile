@@ -32,11 +32,13 @@ export $(shell sed 's/=.*//' $(cnf))
 SHELL := /bin/bash
 # grep the version from the mix file
 VERSION=$(shell cat VERSION)
-CURRENT_DIR=$(shell dirname "$(readlink -f "$0")")
+CURRENT_DIR := $(CURDIR)
 ifeq ($(strip $(PROJECT_DIR)), )
 PROJECT_DIR := $(CURRENT_DIR)
 endif
 export PROJECT_DIR
+export CURRENT_DIR
+export VERSION
 
 # HELP
 # This will output the help for each task
@@ -47,6 +49,13 @@ help: ## This help.
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 .DEFAULT_GOAL := help
+
+
+print-env:  ## print environment variables
+	echo "PROJECT_DIR: $(PROJECT_DIR)"
+	echo "CURRENT_DIR: $(CURRENT_DIR)"
+	echo "VERSION: $(VERSION)"
+	echo "CURDIR: $(CURDIR)"
 
 clean-py-venv:  ## Delete python virtual environment
 	@echo 'start clean-venv'

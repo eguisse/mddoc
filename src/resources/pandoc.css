@@ -260,8 +260,9 @@ custom mddoc css start here
     padding: 0;
     margin: 0;
     font-size: 100%;
-    word-break: normal;
-    white-space: pre;
+    word-break: keep-all;
+    hyphens: none;
+    white-space: pre-wrap;
     background: 0 0;
     border: 0
 }

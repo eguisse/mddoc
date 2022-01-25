@@ -117,7 +117,7 @@ envsubst "`printf '${%s} ' $(env|cut -d'=' -f1)`" \
 --self-contained \
 --resource-path "${_BUILD_DIR}:${_DOC_PATH}:/tmp/pandoc" \
 ${_PANDOC_OPTS} \
--t html5 \
+-t html \
 -s -o "${_BUILD_DIR}/combined.html" \
 --template "${_TEMPLATE_HTML}" \
 --lua-filter="${_RESOURCE_PATH}/links-to-html.lua" \

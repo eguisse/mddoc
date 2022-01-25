@@ -193,6 +193,7 @@ class Transform:
         self.doc_reviewers_page_exists = False
         self.doc_reviewers_page_name = "doc_reviewers.md"
         self.doc_reviewers_page_title: str = ""
+        self.plantuml_output_format = "svg"
 
     def parsefile(filename):
         logger.debug("start parsefile")
@@ -326,13 +327,16 @@ class Transform:
             cr.write('\n')
             cr.close()
 
-    def convert_puml_2_png(self, in_file_name):
+    def convert_puml_2_img(self, in_file_name):
         """
         convert a puml file to png file
         :return:
         """
-        logger.debug("start convert_puml_2_png, file_name=" + in_file_name)
-        cmdline = ['/usr/local/bin/plantuml', "-tpng", '-o', self.site_img_path, in_file_name]
+        logger.debug("start convert_puml_2_img, file_name=" + in_file_name)
+        if self.plantuml_output_format == "png":
+            cmdline = ['/usr/local/bin/plantuml', "-tpng", '-o', self.site_img_path, in_file_name]
+        elif self.plantuml_output_format == "svg":
+            cmdline = ['/usr/local/bin/plantuml', "-tsvg", '-o', self.site_img_path, in_file_name]
         try:
             p = subprocess.run(cmdline, check=True, text=True, timeout=15)
             print(p.stdout)
@@ -620,7 +624,7 @@ class Transform:
                                     puml_files_list.append(puml_filename)
                                     logger.debug("generate puml file: " + puml_filename)
                                     site_page.write("![Diagram " + str(
-                                        puml_file_id) + "](images/" + base_puml_filename + ".png" + ")\n")
+                                        puml_file_id) + "](images/" + base_puml_filename + "." + self.plantuml_output_format + ")\n")
                                     puml_file = codecs.open(puml_filename, 'w', encoding=self.encoding)
                                     puml_file.write("@startuml\n")
                                     site_line = ''
@@ -695,7 +699,7 @@ class Transform:
             self.combined_md_file.write(lline)
 
         for puml_file in puml_files_list:
-            self.convert_puml_2_png(puml_file)
+            self.convert_puml_2_img(puml_file)
 
         for nwdiag_file in nwdiag_files_list:
             self.convert_nwdiag_2_png(nwdiag_file)

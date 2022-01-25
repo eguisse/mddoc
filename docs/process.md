@@ -13,7 +13,7 @@ Alice -> Bob : Go Away
 
 ## plan uml example  2
 
-```plantuml  format="svg"
+```plantuml
 autonumber "<b>[000]"
 Bob -> Alice : Authentication Request
 Bob <- Alice : Authentication Response

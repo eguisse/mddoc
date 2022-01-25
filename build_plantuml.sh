@@ -32,6 +32,11 @@ cd ${BUILD_PATH}/jlatexmath
 mvn package -Dmaven.test.skip=true
 cp ./jlatexmath/target/jlatexmath-*-SNAPSHOT.jar ${BUILD_PATH}/jlatexmath.jar
 
+#curl -o ${BUILD_PATH}/batik-svg-dom.jar https://repo1.maven.org/maven2/org/apache/xmlgraphics/batik-svg-dom/1.14/batik-svg-dom-1.14.jar
+#curl -o ${BUILD_PATH}/batik-dom.jar https://repo1.maven.org/maven2/org/apache/xmlgraphics/batik-dom/1.14/batik-dom-1.14.jar
+#curl -o ${BUILD_PATH}/batik-i18n.jar https://repo1.maven.org/maven2/org/apache/xmlgraphics/batik-i18n/1.14/batik-i18n-1.14.jar
+curl -o ${BUILD_PATH}/batik-all.jar https://repo1.maven.org/maven2/org/apache/xmlgraphics/batik-all/1.14/batik-all-1.14.jar
+
 cd ${CURRENT_PATH}
 
 echo "$0 finished successfully at $(date)"

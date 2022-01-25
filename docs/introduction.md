@@ -300,8 +300,7 @@ else:
 Very long command in bash:
 
 ```bash
-openssl pkcs12 -export -in /etc/ssl/certs/nginx-pkivmdev.localdomain.crt -inkey /etc/ssl/private/nginx-pkivmdev.localdomain.key -certfile", \
-"/etc/ssl/certs/nginx-pkivmdev.localdomain.crt", "-name", "tomcat", "-out", "/opt/ejbca/p12/tomcat.jks.p12"
+openssl pkcs12 -export -in /etc/ssl/certs/nginx-pkivmdev.localdomain.crt -inkey /etc/ssl/private/nginx-pkivmdev.mylonglocaldomain.key -certfile", "/etc/ssl/certs/nginx-pkivmdev.localdomain.crt", "-name", "tomcat", "-out", "/opt/ejbca/p12/tomcat.jks.p12"
 ```
 
 
