@@ -17,7 +17,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 set -x
 
 # global parameters
@@ -48,6 +47,7 @@ declare -gx _COMPANY_NAME=""
 declare -gx _COMPANY_URL=""
 declare -gx _PANDOC_OPTS="-f gfm+smart --filter pandoc-plantuml --highlight-style espresso --columns=80 --wrap=auto"
 declare -gx _PDF_META_KEYWORDS=""
+declare -gx _LOGO_FILENAME=""
 
 export XDG_RUNTIME_DIR=/tmp/runtime-$$
 export DEBUG=1
@@ -63,7 +63,8 @@ mkdir -p "${_BUILD_DIR}/site/images"
 echo "test internet access"
 curl -o /tmp/test.png "https://www.wikipedia.org/static/apple-touch/wikipedia.png"
 
-
+echo ""
+echo "merging md files..."
 python3 ${MDDOC_RUNTIME_PATH}/makepdf.py $@
 
 if [[ $? -ne 0 ]]
@@ -102,7 +103,16 @@ cd /tmp/pandoc
 #--columns=60 \
 #--css="${_CSS_FILE}" \
 
-
+# copy logo file
+if [[ -f "${_LOGO_FILENAME}" ]]
+then
+    cp "${_LOGO_FILENAME}" "${_BUILD_DIR}/logo.png"
+else
+    if [[ -f "${_RESOURCE_PATH}/logo.png" ]]
+    then
+        cp "${_RESOURCE_PATH}/logo.png" "${_BUILD_DIR}/logo.png"
+    fi
+fi
 
 envsubst "`printf '${%s} ' $(env|cut -d'=' -f1)`" \
   < "${_PDF_HEADER_HTML}" > "${_BUILD_DIR}/pdf-header.html"
@@ -110,7 +120,8 @@ envsubst "`printf '${%s} ' $(env|cut -d'=' -f1)`" \
 envsubst "`printf '${%s} ' $(env|cut -d'=' -f1)`" \
   < "${_PDF_FOOTER_HTML}"> "${_BUILD_DIR}/pdf-footer.html"
 
-
+echo ""
+echo "start convert ùd tp html"
 /srv/pandoc "${_BUILD_DIR}/combined.md" \
 --verbose \
 --log="${_BUILD_DIR}/pandoc.log" \
@@ -123,6 +134,7 @@ ${_PANDOC_OPTS} \
 --lua-filter="${_RESOURCE_PATH}/links-to-html.lua" \
 --css="${_CSS_FILE}" \
 --include-before-body="${_BUILD_DIR}/pdf-page1.html"
+#--metadata title="${_TITLE}"
 
 if [ $? -ne 0 ]
 then
@@ -140,6 +152,7 @@ fi
 # Convert single html5 to pdf
 #
 
+echo ""
 echo "start conv2pdf"
 
 wkhtmltopdf \

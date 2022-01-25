@@ -5,7 +5,7 @@ custom mddoc css start here
     -ms-text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
     color: #24292e;
-    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-family: Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     font-size: 16px;
     line-height: 1.5;
     word-wrap: break-word;
@@ -17,7 +17,7 @@ custom mddoc css start here
 }
 
 .markdown-body a {
-    color: #0366d6;
+    color: #0218b1;
     background-color: transparent;
     text-decoration: none;
     -webkit-text-decoration-skip: objects
@@ -287,7 +287,7 @@ custom mddoc css start here
 
 .markdown-body pre code {
     display: inline;
-    max-width: auto;
+    max-width: fit-content;
     padding: 0;
     margin: 0;
     overflow: visible;

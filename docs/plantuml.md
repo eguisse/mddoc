@@ -157,37 +157,39 @@ Just plain text
 ```plantuml
 @startmindmap
 + OS
-  ++ Ubuntu
-  +++ Linux Mint
-  +++ Kubuntu
-  +++ Lubuntu
-  +++ KDE Neon
-  ++ LMDE
-  ++ SolydXK
-  ++ SteamOS
-  ++ Raspbian
-  -- Windows 95
-  -- Windows 98
-  -- Windows NT
-  --- Windows 8
-  --- Windows 10
-  @endmindmap
+++ Ubuntu
++++ Linux Mint
++++ Kubuntu
++++ Lubuntu
++++ KDE Neon
+++ LMDE
+++ SolydXK
+++ SteamOS
+++ Raspbian
+-- Windows 95
+-- Windows 98
+-- Windows NT
+--- Windows 8
+--- Windows 10
+@endmindmap
 ```
 
 ## Work Breakdown Structure
 
 ```plantuml
 @startwbs
-+ Project
-+ Part One
-+ Task 1.1
-- LeftTask 1.2
-+ Task 1.3
-+ Part Two
-+ Task 2.1
-+ Task 2.2
-  -_ Task 2.2.1 To the left boxless
-  -_ Task 2.2.2 To the Left boxless
-  +_ Task 2.2.3 To the right boxless
-  @endwbs
+* Business Process Modelling WBS
+** Launch the project
+*** Complete Stakeholder Research
+*** Initial Implementation Plan
+** Design phase
+*** Model of AsIs Processes Completed
+****< Model of AsIs Processes Completed1
+****> Model of AsIs Processes Completed2
+***< Measure AsIs performance metrics
+***< Identify Quick Wins
+@endwbs
 ```
+
+
+``end of chapter.``

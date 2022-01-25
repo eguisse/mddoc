@@ -106,7 +106,7 @@ See example: [mddoc.yml](mddoc.yml)
 2. Run Command:
 
 ```bash
-./convert2pdf -d docs -b build -o build/output_file.pdf -r src/resources -f mddoc.yml -p $(HOME)/myproject
+./convert2pdf -d docs -b build -o build/output_file.pdf -r src/resources -f mddoc.yml -p $(pwd)
 ```
 
 
@@ -140,6 +140,7 @@ You can create your own resources:
 - CSS
 - LUA Filter
 - Markdown to html filter.
+- Logo on the first page
 
 
 How to do it:
@@ -160,20 +161,13 @@ Modify the file as your needs.
 
 Building the Docker image is long, because we compile plantuml, pandoc, wkhtmltopdf and graphviz from code source.
 
-0. Clone the repository
+1. Clone the repository
 
 ```bash
 git clone https://github.com/eguisse/mddoc.git
 ```
 
-
-1. Build wkhtmltopdf 
-
-```bash
-make build-wkhtmltopdf:
-```
-
-it takes ~ 30 minutes
+You may change the version in file `VERSION`
 
 
 2. Build plantuml

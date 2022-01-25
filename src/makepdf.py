@@ -194,6 +194,7 @@ class Transform:
         self.doc_reviewers_page_name = "doc_reviewers.md"
         self.doc_reviewers_page_title: str = ""
         self.plantuml_output_format = "svg"
+        self.logo_filename = None
 
     def parsefile(filename):
         logger.debug("start parsefile")
@@ -782,6 +783,8 @@ class Transform:
         if 'doc_reviewers_page_name' in self.config_data[u'extra']:
             self.doc_reviewers_page_name = self.config_data[u'extra'][u'doc_reviewers_page_name']
 
+        if 'logo_filename' in self.config_data[u'extra']:
+            self.logo_filename = os.path.join(self.docs_path, self.config_data[u'extra'][u'logo_filename'])
 
         logger.debug("docs_path=" + self.docs_path)
         logger.debug("site_dir=" + self.config_data[u'site_dir'])
@@ -847,6 +850,8 @@ class Transform:
         setenv("_SITE_PATH", self.site_path)
         setenv("_CONFIG_FILENAME", self.config_filename)
         setenv("_MKDOCS_CONFIG_FILENAME", self.mkdocs_config_filename)
+        if self.logo_filename is not None:
+            setenv("_LOGO_FILENAME", self.logo_filename )
 
         if 'wkhtmltopdf_opts' in self.config_data[u'extra']:
             setenv("_WKHTMLTOPDF_OPTS", self.config_data[u'extra'][u'wkhtmltopdf_opts'])
@@ -870,6 +875,7 @@ class Transform:
         delfile(os.path.join(self.build_path, 'pdf-header.html'))
         delfile(os.path.join(self.build_path, 'pdf-footer.html'))
         delfile(os.path.join(self.build_path, 'combined.pdf'))
+        delfile(os.path.join(self.build_path, 'logo.png'))
 
     def create_mkdoc_conf_file(self):
         """

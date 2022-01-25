@@ -98,17 +98,6 @@ VPC(aws_vpc, "My Company VPC" , "AWS VPC")  {
 
 
 
-
-
-
-## plan uml example  4
-
-
-::uml:: format="png" classes="uml myDiagram" alt="My super diagram placeholder" title="My super diagram" width="300px" height="300px"
-  Goofy ->  MickeyMouse: calls
-  Goofy <-- MickeyMouse: responds
-::end-uml::
-
 ## image png
 
 Below an example of png image
