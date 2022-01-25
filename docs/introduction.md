@@ -147,12 +147,77 @@ Definition of entropy
 
 ## test table
 
+### simple table
+
 table 1:
 
 | Header 1 | Value |
 |----------|-------|
 | name1    | 12344 |
 | name2    | 2341  |
+
+
+### second table
+
+- ex 2.a
+
+| abc | defghi |
+| :-: | -----------: |
+| bar | baz |
+
+
+- ex 2.b
+
+| f\|oo  |
+| ------ |
+| b `\|` az |
+| b **\|** im | 
+
+
+- ex 2.c
+
+| abc | def |
+| --- |
+| bar |
+
+- ex colspan
+
+| One    | Two | Three | Four    | Five  | Six  |
+| -------| --- | ----- | ------- | ----- | ---- |
+| Span <td colspan=3>triple  <td colspan=2>double
+
+
+| One    | Two | Three | Four    | Five  | Six  |
+| -------| --- | ----- | ------- | ----- | ---- |
+| Span triple  ||| double ||
+
+
+- ex 2.e
+
+| Header 1  | Header 2 |
+| --------  | -------- |
+| data      | Some long data that <br /> spans multiple lines |
+
+
+## Task list
+
+- [x] #739
+- [ ] https://github.com/octo-org/octo-repo/issues/740
+- [ ] Add delight to the experience when all tasks are complete :tada:
+
+## Heading
+
+
+Foo *bar*
+---------
+
+    Foo
+---
+
+
+> Foo
+---
+
 
 
 ## test link
@@ -223,6 +288,28 @@ The Korean alphabet - Vowels:
 
 ## test code
 
+> test 1:
+
+
+```
+aaa
+~~~
+```
+
+> test2 
+
+~~~
+aaa
+```
+~~~
+
+<Warning>
+*bar*
+</Warning>
+
+
+
+
 Yaml file:
 
 ```yaml
@@ -269,39 +356,75 @@ public class QuotientRemainder {
 }
 ```
 
-python example:
+
+Python example:
 
 ```python
-# Program to check if a number is prime or not
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-num = 407
+"""
+    Get X1 / foundation / lookups informations
 
-# To take input from the user
-#num = int(input("Enter a number: "))
+"""
 
-# prime numbers are greater than 1
-if num > 1:
-   # check for factors
-   for i in range(2,num):
-       if (num % i) == 0:
-           print(num,"is not a prime number")
-           print(i,"times",num//i,"is",num)
-           break
-   else:
-       print(num,"is a prime number")
-       
-# if input number is less than
-# or equal to 1, it is not prime
-else:
-   print(num,"is not a prime number")
+import logging
+import os
+from ApiRequest import ApiRequest
+from datetime import datetime
+import click
+import json
+
+logger = logging.getLogger(__name__).parent
+
+
+def get_fnd_lookups(ar: ApiRequest, params: {} = None) -> {}:
+    buf: {} = None
+    result: [] = []
+    i: int = 0
+    while i == 0 or "next" in buf:
+        if buf is not None and "next" in buf:
+            buf = ar.get(api_endpoint="fnd-v1/lookups/get/", params={"page": i})
+        else:
+            buf = ar.get(api_endpoint="fnd-v1/lookups/get/", params=params)
+        for item in buf["items"]:
+            result.append(item)
+        i = i + 1
+
+    return {"items": result}
+
+
+@click.command(context_settings={'show_default': True})
+@click.option('-c', '--config_filename', help='Configuration filename', default='x1app_api_default.yaml')
+@click.option('-l', '--logging_config', help='Logging configuration filename',default='logging.ini')
+@click.option('-f', '--output_filename', help='Logging configuration filename',default='out/fnd_lookups.json')
+def main(config_filename: str, logging_config: str, output_filename: str):
+    """
+      Get value from view x1_fnd_applications_v
+
+      example: https://oravmdev2/ords/x1api/x1_fnd_applications/
+    """
+    if os.path.exists(logging_config):
+        logging.config.fileConfig(logging_config)
+        logger = logging.getLogger()
+
+    ar = ApiRequest(config_filename=config_filename)
+
+    with open(output_filename, 'w') as fh:
+        json.dump( get_fnd_lookups(ar=ar), fh,  indent=2)
+
+
+if __name__ == '__main__':
+    print("script started at: " + datetime.now().isoformat())
+    main()
+    quit()
 ```
 
 
 Very long command in bash:
 
 ```bash
-openssl pkcs12 -export -in /etc/ssl/certs/nginx-pkivmdev.localdomain.crt -inkey /etc/ssl/private/nginx-pkivmdev.localdomain.key -certfile", \
-"/etc/ssl/certs/nginx-pkivmdev.localdomain.crt", "-name", "tomcat", "-out", "/opt/ejbca/p12/tomcat.jks.p12"
+openssl pkcs12 -export -in /etc/ssl/certs/nginx-pkivmdev.localdomain.crt -inkey /etc/ssl/private/nginx-pkivmdev.mylonglocaldomain.key -certfile", "/etc/ssl/certs/nginx-pkivmdev.localdomain.crt", "-name", "tomcat", "-out", "/opt/ejbca/p12/tomcat.jks.p12"
 ```
 
 

@@ -2,8 +2,8 @@
 
 ## L4 network diagram 
 
-
-```nwdiag
+```plantuml
+@startuml
 nwdiag {
   network dmz {
       address = "210.x.x.x/24"
@@ -19,7 +19,8 @@ nwdiag {
       db01;
       db02;
   }
-}
+} 
+@enduml
 ```
 
 

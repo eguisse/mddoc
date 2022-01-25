@@ -27,7 +27,8 @@ extra:
   pdf_out_filename: mddoc_report.pdf
   # pdf Page format
   wkhtmltopdf_opts: "--dpi 300 --minimum-font-size 2 -B 25mm -L 10mm -R 5mm -T 25mm -O Portrait -s A4 --page-size A4 --header-spacing 10 --footer-spacing 5 "
-  pandoc_opts: "-f gfm+smart --filter pandoc-plantuml --highlight-style espresso --columns=80 --wrap=auto"
+  # highlight-style: pygments tango espresso zenburn kate monochrome breezedark haddock
+  pandoc_opts: "-f gfm+smart --filter pandoc-plantuml --highlight-style=pygments --columns=80 --wrap=auto --listings"
   # Create change records page with the list of the tags
   git_history: true
   # include file index.md
@@ -38,6 +39,7 @@ extra:
   chapter_autonumbering: true
   # Build new file table_of_contents.md with the list of chapters found in all md documents
   include_table_of_contents: true
+  logo_filename: images/logo.png
 
 
 nav:
@@ -45,6 +47,7 @@ nav:
   - Introduction: introduction.md
   - Processes: process.md
   - Network diagram: nwdiag.md
+  - Plantuml diagram: plantuml.md
 
 
 theme:

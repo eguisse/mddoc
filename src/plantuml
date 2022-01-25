@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 
-JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
+JAVA_HOME="${JAVA_HOME:-/usr/lib/jvm/java-16-openjdk-amd64}"
 export JAVA_HOME
-CLASSPATH="/opt/plantuml/jlatexmath.jar:/opt/plantuml/plantuml.jar"
+CLASSPATH="/opt/plantuml/jlatexmath.jar:/opt/plantuml/plantuml.jar:/opt/plantuml/batik-all.jar"
 export CLASSPATH
 ${JAVA_HOME}/bin/java -classpath "${CLASSPATH}" net.sourceforge.plantuml.Run $@
 

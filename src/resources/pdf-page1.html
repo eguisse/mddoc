@@ -1,87 +1,89 @@
 <!doctype html>
-<html>
+<html lang="EN">
 
 <body>
 <div class="custompage1" id="custompage1">
-<p>
-<table style="border:0px; color: grey; font-size: medium; font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">
-  <tr style="height:40mm">
-    <br>
-    <div style="color: black; font-size: xx-large; font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif"><b>${_COMPANY_NAME}</b></div>
-    <div style="color: black">${_COMPANY_URL}</div>
-    <br>
-    <br>
-  </tr>
-  <tr style="height:20mm">
-    <br>
-  </tr>
-  <tr style="height:20mm; width:100%">
-    <table style="width:100%; border: 0px white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color:darkblue">
-      <tr style="border-style: hidden; border: 0px white;">
-        <th style="text-align:left; font-size:12px; width:1%; border: 0px white"></th>
-        <th style="text-align:center; font-size:25px; width:98%; color:black; font-weight: bold; border: 0px white">${_TITLE}</th>
-        <th style="text-align:left; font-size:12px; width:1%; border: 0px white"></th>
-      </tr>
-    </table>
-    <br>
-    <br>
-  </tr>
-  <tr style="height:80mm">
-    <br>
-    <br>
-    <br>
-  </tr>
-  <tr style="height:10mm">
-    <span style="text-align:left; font-size:16px; color: darkblue">Document properties:</span>
-  </tr>
-    <br>
-  <tr style="height:80mm">
-    <table style="width:90%; border:0px; border-color: black ; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color:grey; font-size:12px">
-      <tr>
-        <th style="text-align:right; width:20%">Project Name:</th>
-        <th style="text-align:left; width:80%">${_PROJECTNAME}</th>
-      </tr>
-      <tr>
-        <th style="text-align:right; width:30%">Title:</th>
-        <th style="text-align:left; width:70%">${_TITLE}</th>
-      <tr>
-        <th style="text-align:right">Filename:</th>
-        <th style="text-align:left">${_FILENAME}</th>
-      </tr>
-      <tr>
-        <th style="text-align:right">Document status:</th>
-        <th style="text-align:left">${_STATUS}</th>
-      </tr>
-      <tr>
-        <th style="text-align:right">Author:</th>
-        <th style="text-align:left">${_AUTHOR}</th>
-      </tr>
-      <tr>
-        <th style="text-align:right">Git Version:</th>
-        <th style="text-align:left">${_GIT_VERSION}</th>
-      </tr>
-        <tr>
-            <th style="text-align:right">Repository:</th>
-            <th style="text-align:left">${_GIT_REPONAME}</th>
+    <p>
+    <table style="border:0px white; border-style: none; width:100%; color: transparent; font-size: medium; font-family: Helvetica, Arial,serif">
+    <tr style="border:0px white">
+        <th style="text-align:left; border-style: none; width:50%">
+            <div style="color: black; font-size: xx-large"><b>${_COMPANY_NAME}</b></div>
+            <div style="color: black">${_COMPANY_URL}</div>
+        </th>
+        <th style="text-align: right; border-style: none; width:50%">
+            <img class="first-page-logo" src="logo.png" alt="logo"></th>
         </tr>
-      <tr>
-        <th style="text-align:right">Last update date:</th>
-        <th style="text-align:left">${_GIT_DATE}</th>
-      </tr>
-      <tr>
-        <th style="text-align:right">Level of confidentiality:</th>
-        <th style="text-align:left">${_CONFIDENTIALITY}</th>
-      </tr>
     </table>
-  </tr>
-  <tr style="height:40mm">
-    <br>
-    <br>
-  </tr>
-  <tr><span style="text-align:left; font-size:12px;">${_RIGHTS}</span></tr>
-</table>
-</p>
+    <table style="border:0px; color: grey; font-size: medium; font-family: Helvetica, Arial">
+        <tr style="height:20mm; width:100%">
+            <table style="width:100%; border: 0px white; font-family: Helvetica, Arial, sans-serif; color:darkblue">
+                <tr style="border-style: hidden; border: 0px white;">
+                    <th style="text-align:left; font-size:12px; width:1%; border: 0px white"></th>
+                    <th style="text-align:center; font-size:25px; width:98%; color:black; font-weight: bold; border: 0px white">
+                        ${_TITLE}
+                    </th>
+                    <th style="text-align:left; font-size:12px; width:1%; border: 0px white"></th>
+                </tr>
+            </table>
+            <br>
+            <br>
+        </tr>
+        <tr style="height:80mm">
+            <br>
+            <br>
+            <br>
+        </tr>
+        <tr style="height:10mm">
+            <span style="text-align:left; font-size:16px; color: darkblue">Document properties:</span>
+        </tr>
+        <br>
+        <tr style="height:80mm">
+            <table
+                style="width:90%; border:0px; border-color: black ; font-family: Helvetica, Arial; color:dimgrey; font-size:12px">
+                <tr>
+                    <th style="text-align:right; width:20%">Project Name:</th>
+                    <th style="text-align:left; width:80%">${_PROJECTNAME}</th>
+                </tr>
+                <tr>
+                    <th style="text-align:right; width:30%">Title:</th>
+                    <th style="text-align:left; width:70%">${_TITLE}</th>
+                <tr>
+                    <th style="text-align:right">Filename:</th>
+                    <th style="text-align:left">${_FILENAME}</th>
+                </tr>
+                <tr>
+                    <th style="text-align:right">Document status:</th>
+                    <th style="text-align:left">${_STATUS}</th>
+                </tr>
+                <tr>
+                    <th style="text-align:right">Author:</th>
+                    <th style="text-align:left">${_AUTHOR}</th>
+                </tr>
+                <tr>
+                    <th style="text-align:right">Git Version:</th>
+                    <th style="text-align:left">${_GIT_VERSION}</th>
+                </tr>
+                <tr>
+                    <th style="text-align:right">Repository:</th>
+                    <th style="text-align:left">${_GIT_REPONAME}</th>
+                </tr>
+                <tr>
+                    <th style="text-align:right">Last update date:</th>
+                    <th style="text-align:left">${_GIT_DATE}</th>
+                </tr>
+                <tr>
+                    <th style="text-align:right">Level of confidentiality:</th>
+                    <th style="text-align:left">${_CONFIDENTIALITY}</th>
+                </tr>
+            </table>
+        </tr>
+        <tr style="height:40mm">
+            <br>
+            <br>
+        </tr>
+    </table>
+    </p>
 </div>
+<div class="new-page"></div>
 </body>
-
 </html>

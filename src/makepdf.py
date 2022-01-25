@@ -4,7 +4,7 @@
   Makefile to generate the html and pdf file.
   It combines multiple md files into 1 combined md file.
 
-  Copyright (c) 2018 - 2020, Emmanuel GUISSE
+  Copyright (c) 2022, Emmanuel GUISSE
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -193,6 +193,8 @@ class Transform:
         self.doc_reviewers_page_exists = False
         self.doc_reviewers_page_name = "doc_reviewers.md"
         self.doc_reviewers_page_title: str = ""
+        self.plantuml_output_format = "svg"
+        self.logo_filename = None
 
     def parsefile(filename):
         logger.debug("start parsefile")
@@ -326,13 +328,16 @@ class Transform:
             cr.write('\n')
             cr.close()
 
-    def convert_puml_2_png(self, in_file_name):
+    def convert_puml_2_img(self, in_file_name):
         """
         convert a puml file to png file
         :return:
         """
-        logger.debug("start convert_puml_2_png, file_name=" + in_file_name)
-        cmdline = ['/usr/local/bin/plantuml', "-tpng", '-o', self.site_img_path, in_file_name]
+        logger.debug("start convert_puml_2_img, file_name=" + in_file_name)
+        if self.plantuml_output_format == "png":
+            cmdline = ['/usr/local/bin/plantuml', "-tpng", '-o', self.site_img_path, in_file_name]
+        elif self.plantuml_output_format == "svg":
+            cmdline = ['/usr/local/bin/plantuml', "-tsvg", '-o', self.site_img_path, in_file_name]
         try:
             p = subprocess.run(cmdline, check=True, text=True, timeout=15)
             print(p.stdout)
@@ -620,7 +625,7 @@ class Transform:
                                     puml_files_list.append(puml_filename)
                                     logger.debug("generate puml file: " + puml_filename)
                                     site_page.write("![Diagram " + str(
-                                        puml_file_id) + "](images/" + base_puml_filename + ".png" + ")\n")
+                                        puml_file_id) + "](images/" + base_puml_filename + "." + self.plantuml_output_format + ")\n")
                                     puml_file = codecs.open(puml_filename, 'w', encoding=self.encoding)
                                     puml_file.write("@startuml\n")
                                     site_line = ''
@@ -695,7 +700,7 @@ class Transform:
             self.combined_md_file.write(lline)
 
         for puml_file in puml_files_list:
-            self.convert_puml_2_png(puml_file)
+            self.convert_puml_2_img(puml_file)
 
         for nwdiag_file in nwdiag_files_list:
             self.convert_nwdiag_2_png(nwdiag_file)
@@ -778,6 +783,8 @@ class Transform:
         if 'doc_reviewers_page_name' in self.config_data[u'extra']:
             self.doc_reviewers_page_name = self.config_data[u'extra'][u'doc_reviewers_page_name']
 
+        if 'logo_filename' in self.config_data[u'extra']:
+            self.logo_filename = os.path.join(self.docs_path, self.config_data[u'extra'][u'logo_filename'])
 
         logger.debug("docs_path=" + self.docs_path)
         logger.debug("site_dir=" + self.config_data[u'site_dir'])
@@ -820,8 +827,14 @@ class Transform:
         setenv("_COMPANY_NAME", self.config_data[u'extra'][u'company_name'])
         setenv("_COMPANY_URL", self.config_data[u'extra'][u'company_url'])
         setenv("_OWNER", self.config_data[u'extra'][u'document_owner'])
-        setenv("_GIT_VERSION", self.git_version)
-        setenv("_GIT_DATE", self.git_date)
+        if self.git_version is not None:
+            setenv("_GIT_VERSION", self.git_version)
+        else:
+            setenv("_GIT_VERSION", self.config_data[u'extra'][u'version'])
+        if self.git_date is not None:
+            setenv("_GIT_DATE", self.git_date)
+        else:
+            setenv("_GIT_DATE", self.config_data[u'extra'][u'published_date'])
         setenv("_GIT_REPONAME", self.git_remote_url)
         setenv("_DOC_PATH", self.docs_path)
         setenv("_BUILD_DIR", self.build_path)
@@ -837,6 +850,8 @@ class Transform:
         setenv("_SITE_PATH", self.site_path)
         setenv("_CONFIG_FILENAME", self.config_filename)
         setenv("_MKDOCS_CONFIG_FILENAME", self.mkdocs_config_filename)
+        if self.logo_filename is not None:
+            setenv("_LOGO_FILENAME", self.logo_filename )
 
         if 'wkhtmltopdf_opts' in self.config_data[u'extra']:
             setenv("_WKHTMLTOPDF_OPTS", self.config_data[u'extra'][u'wkhtmltopdf_opts'])
@@ -860,6 +875,7 @@ class Transform:
         delfile(os.path.join(self.build_path, 'pdf-header.html'))
         delfile(os.path.join(self.build_path, 'pdf-footer.html'))
         delfile(os.path.join(self.build_path, 'combined.pdf'))
+        delfile(os.path.join(self.build_path, 'logo.png'))
 
     def create_mkdoc_conf_file(self):
         """
