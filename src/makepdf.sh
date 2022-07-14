@@ -2,7 +2,7 @@
 #
 # Markdown to pdf converter
 #
-# Copyright (c) 2018 - 2020, Emmanuel GUISSE
+# Copyright (c) 2018 - 2022, Emmanuel GUISSE
 #
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -99,9 +99,6 @@ envsubst "`printf '${%s} ' $(env|cut -d'=' -f1)`" < "${_PDF_PAGE1_HTML}" > "${_B
 CURRENT_DIR="$(pwd)"
 mkdir -p /tmp/pandoc
 cd /tmp/pandoc
-#-f markdown+smart \
-#--columns=60 \
-#--css="${_CSS_FILE}" \
 
 # copy logo file
 if [[ -f "${_LOGO_FILENAME}" ]]
@@ -122,7 +119,7 @@ envsubst "`printf '${%s} ' $(env|cut -d'=' -f1)`" \
 
 echo ""
 echo "start convert ùd tp html"
-/srv/pandoc "${_BUILD_DIR}/combined.md" \
+pandoc "${_BUILD_DIR}/combined.md" \
 --verbose \
 --log="${_BUILD_DIR}/pandoc.log" \
 --self-contained \
