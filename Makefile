@@ -149,4 +149,7 @@ test-docker-bash:  ## run docker container and execute bash
 test-md: clean  ## test markdown transformation
 	source venv/bin/activate && export PYTHONPATH=$(CURRENT_DIR)/src && python3 src/makepdf.py -f $(CURRENT_DIR)/mddoc.yml -p $(CURRENT_DIR) -b $(CURRENT_DIR)/build -d docs -r src/resources
 
+test-docker-site:  ## Run docker container for test convert to pdf
+	@echo 'start test-docker-pdf for project path $(REPO_DOC_TEST)'
+	docker run -it --rm -v "$(PROJECT_DIR):/mnt:rw" "$(IMAGE_NAME):$(VERSION)-snapshot" mkdocs build -f build/mkdocs.yaml -d site
 
