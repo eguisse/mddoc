@@ -58,7 +58,7 @@ echo "$0 started at `date`"
 
 set -euo pipefail
 
-mkdir -p "${_BUILD_DIR}/site/images"
+mkdir -p "${_BUILD_DIR}/site_build/images"
 
 echo "test internet access"
 curl -o /tmp/test.png "https://www.wikipedia.org/static/apple-touch/wikipedia.png"

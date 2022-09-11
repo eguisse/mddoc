@@ -178,7 +178,7 @@ class Transform:
             self.css_file = os.path.join(self.resource_path, "pandoc.css")
         else:
             self.css_file = os.path.join(self.local_resource_path, "pandoc.css")
-        self.site_build_path = os.path.join(self.build_path, "site")
+        self.site_build_path = os.path.join(self.build_path, "site_build")
         self.site_img_path = os.path.join(self.site_build_path, 'images')
         self.site_diagram_dir = os.path.join(self.site_build_path, 'diagrams')
         self.mkdocs_config_filename = os.path.join(self.build_path, "mkdocs.yaml")

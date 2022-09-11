@@ -4,7 +4,7 @@ LABEL maintener emmanuel.guisse@egitc.com
 LABEL description="This image provides converter from markdown to pdf"
 LABEL project-name="mddoc"
 LABEL project_url="https://github.com/eguisse/mddoc"
-
+LABEL version="$VERSION"
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN useradd --uid 1000 -m -s /bin/bash build
