@@ -18,7 +18,7 @@ jobs:
                     java-version: '17'
                     java-package: jdk
                     architecture: x64
-                    distribution: ''
+                    distribution: 'adopt'
             -   name: Run build plantuml script
                 run: ./build_plantuml.sh
                 shell: bash
