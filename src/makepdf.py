@@ -647,7 +647,7 @@ class Transform:
                                     site_page.write("![Diagram " + str(nwdiag_file_id) + "](images/" + base_nwdiag_filename + "." + self.diag_output_format + ")\n")
                                     nwdiag_file = codecs.open(nwdiag_filename, 'w', encoding=self.encoding)
                                     site_line = ''
-                                    line = "![Diagram " + str(nwdiag_file_id) + "](site/images/" + base_nwdiag_filename + "." + self.diag_output_format + ")\n"
+                                    line = "![Diagram " + str(nwdiag_file_id) + "](" + self.site_build_path + "/images/" + base_nwdiag_filename + "." + self.diag_output_format + ")\n"
 
                                 elif in_nwdiag:
                                     site_line = ''

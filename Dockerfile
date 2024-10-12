@@ -1,27 +1,32 @@
-FROM ubuntu:jammy-20220531
+FROM ubuntu:jammy
 
-LABEL maintener emmanuel.guisse@egitc.com
+LABEL maintener="emmanuel.guisse@egitc.com"
 LABEL description="This image provides converter from markdown to pdf"
 LABEL project-name="mddoc"
 LABEL project_url="https://github.com/eguisse/mddoc"
+ARG VERSION
 LABEL version="$VERSION"
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN useradd --uid 1000 -m -s /bin/bash build
 RUN apt-get update -q \
   && apt-get install -q -y software-properties-common locales pandoc gettext-base xz-utils \
-  exiftool vim openjdk-17-jdk python3 python3-pip python3-venv git curl wget lftp \
+  exiftool vim openjdk-17-jre python3 python3-pip python3-venv git curl wget lftp \
   ca-certificates  fontconfig ttf-mscorefonts-installer fonts-ipafont xfonts-efont-unicode fonts-freefont-otf \
   libxext6 libxrender1 xfonts-75dpi xfonts-base zlib1g libpng-tools graphviz lua5.3 \
   librsvg2-common librsvg2-doc libpangocairo-1.0-0 libgtk-3-0 libjlatexmath-java \
   libjs-mathjax librsvg2-bin python3-m2r pandoc-plantuml-filter pandoc-citeproc ocaml pandoc-data \
-  wkhtmltopdf pandoc-citeproc-preamble fonts-freefont-ttf
+  pandoc-citeproc-preamble fonts-freefont-ttf
 #  nodejs groff ghc context zlib1g pandoc-data libgmp10 libgmp10-dev libatomic1 libpcre3 texlive-xetex
 
 
+ADD https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.jammy_amd64.deb /tmp/wkhtmltox_0.12.6.1-3.jammy_amd64.deb
+RUN apt install -f /tmp/wkhtmltox_0.12.6.1-3.jammy_amd64.deb \
+    && rm /tmp/wkhtmltox_0.12.6.1-3.jammy_amd64.deb
+
 RUN rm -rf /var/lib/apt/lists/* \
   && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
-ENV LANG en_US.utf8
+ENV LANG=en_US.utf8
 
 
 WORKDIR /srv

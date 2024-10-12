@@ -9,7 +9,8 @@ site_url: https://localhost/mddoc-test
 site_description: mddoc test document
 site_author: Steve Austin
 repo_url: https://github.com/eguisse/mddoc
-copyright: Copyright (c) 2019 - 2022, Emmanuel GUISSE
+copyright: Copyright (c) 2019 - 2024, Emmanuel GUISSE
+lang: en
 
 
 extra:
@@ -72,7 +73,7 @@ plugins:
           bin_path: '/usr/local/bin/plantuml' # ignored when render: server
           server: 'http://www.plantuml.com/plantuml' # offical plantuml server
           disable_ssl_certificate_validation: true # for self-signed and invalid certs
-          output_format: 'svg' # or "png"
+          output_format: 'svg' # 'svg' or "png"
           diagram_root: 'docs/diagrams' # should reside under docs_dir
           output_folder: 'out'
           input_folder: 'src'

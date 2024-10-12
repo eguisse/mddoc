@@ -22,14 +22,16 @@ cd ${BUILD_PATH}
 git clone https://github.com/plantuml/plantuml.git
 
 cd ${BUILD_PATH}/plantuml
-ant dist
-cp ${BUILD_PATH}/plantuml/plantuml.jar ${BUILD_PATH}/plantuml.jar
+gradle build
+rm ${BUILD_PATH}/plantuml/build/libs/plantuml*javadoc.jar
+rm ${BUILD_PATH}/plantuml/build/libs/plantuml*sources.jar
+cp ${BUILD_PATH}/plantuml/build/libs/plantuml*.jar ${BUILD_PATH}/plantuml.jar
 
 rm -Rf ${BUILD_PATH}/jlatexmath
 cd ${BUILD_PATH}
-git clone https://github.com/opencollab/jlatexmath.git
+git clone https://github.com/plantuml/jlatexmath.git
 cd ${BUILD_PATH}/jlatexmath
-mvn package -Dmaven.test.skip=true
+mvn package -Dmaven.test.skip=true -Djava.version=1.8
 cp ./jlatexmath/target/jlatexmath-*-SNAPSHOT.jar ${BUILD_PATH}/jlatexmath.jar
 
 #curl -o ${BUILD_PATH}/batik-svg-dom.jar https://repo1.maven.org/maven2/org/apache/xmlgraphics/batik-svg-dom/1.14/batik-svg-dom-1.14.jar
