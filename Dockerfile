@@ -60,7 +60,8 @@ COPY VERSION /srv/VERSION
 
 USER build
 WORKDIR /mnt
-RUN mkdir -p /home/build/.local/share/pandoc
+RUN mkdir -p /home/build/.local/share/pandoc \
+    && git config --global safe.directory '*'
 
 ENV PYTHONPATH=/srv
 ENV MDDOC_RUNTIME_PATH=/srv
