@@ -132,5 +132,10 @@ f(t)=(a_0)/2 + sum_(n=1)^ooa_ncos((npit)/L)+sum_(n=1)^oo b_n\ sin((npit)/L)
 ```
 
 
+### draw.io diagram
 
+Example:
 
+![diag_7.drawio](images/diag_7.drawio)
+
+end of file.

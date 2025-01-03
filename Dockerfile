@@ -1,11 +1,11 @@
 FROM ubuntu:jammy
 
-LABEL maintener="emmanuel.guisse@egitc.com"
-LABEL description="This image provides converter from markdown to pdf"
-LABEL project-name="mddoc"
-LABEL project_url="https://github.com/eguisse/mddoc"
+LABEL org.opencontainers.image.authors="emmanuel.guisse@egitc.com"
+LABEL org.opencontainers.image.description="This image provides converter from markdown to pdf"
+LABEL org.opencontainers.image.ref.name="mddoc"
+LABEL org.opencontainers.image.url="https://github.com/eguisse/mddoc"
 ARG VERSION
-LABEL version="$VERSION"
+LABEL org.opencontainers.image.version="$VERSION"
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN useradd --uid 1000 -m -s /bin/bash build
