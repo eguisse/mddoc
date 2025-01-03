@@ -136,6 +136,6 @@ f(t)=(a_0)/2 + sum_(n=1)^ooa_ncos((npit)/L)+sum_(n=1)^oo b_n\ sin((npit)/L)
 
 Example:
 
-![diag_7.drawio](images/diag_7.drawio)
+![diag_7.drawio.svg](images/diag_7.drawio.svg)
 
 end of file.
