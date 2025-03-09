@@ -66,30 +66,6 @@ build-py-venv: clean-py-venv   ## Build python virtual environment
 	python3 -m venv $(PROJECT_DIR)/venv
 	source $(PROJECT_DIR)/venv/bin/activate && pip3 install wheel && pip3 install -r requirements.txt
 
-clean-wkhtmltopdf:
-	rm -Rf build/wp
-
-build-wkhtmltopdf-requirments:  ## install requirements to build wkhtmltopdf
-	sudo apt install -y python-yaml docker.io vagrant virtualbox p7zip-full python3.8-venv
-
-# doc ref: https://github.com/wkhtmltopdf/packaging
-build-wkhtmltopdf: clean-wkhtmltopdf build-py-venv  ## Build wkhtmltopdf
-	@echo 'start build-wkhtmltopd'
-	WP_DIR=$(PROJECT_DIR)/build/wp
-	mkdir -p $(PROJECT_DIR)/build/wp
-	cd $(PROJECT_DIR)/build/wp && git clone https://github.com/wkhtmltopdf/wkhtmltopdf.git
-	cd $(PROJECT_DIR)/build/wp/wkhtmltopdf && git submodule init && git submodule update
-	cd $(PROJECT_DIR)/build/wp && wget https://github.com/wkhtmltopdf/packaging/archive/0.12.6-3.tar.gz && tar -zxf 0.12.6-3.tar.gz
-	source venv/bin/activate &&  cd $(PROJECT_DIR)/build/wp/packaging-0.12.6-3 && python build package-docker focal-amd64 $(PROJECT_DIR)/build/wp/wkhtmltopdf
-	cp $(PROJECT_DIR)/build/wp/packaging-0.12.6-3/targets/wkhtmltox_*.focal_amd64.deb $(PROJECT_DIR)/build/wkhtmltox.focal_amd64.deb
-	gsutil -m cp -r build/wkhtmltox.focal_amd64.deb gs://engineering-doc-egitc-com/dist/
-	gsutil acl ch -r -u AllUsers:R gs://engineering-doc-egitc-com/dist/wkhtmltox.focal_amd64.deb
-	# http://storage.googleapis.com/engineering-doc-egitc-com/dist/wkhtmltox.focal_amd64.deb
-
-build-plantuml:  ## Build plantuml.jar
-	@echo 'start build-plantuml'
-	mkdir -p build/plantuml
-	cd $(PROJECT_DIR) && ./build_plantuml.sh
 
 run-docker-img-mddoc_build:    ## Run Docker image mddoc_build used for compilation
 	docker run -it --rm --net=host --env-file $(cnf) -v "$(CURRENT_DIR):/mnt:rw" "mddoc_build:latest" bash
