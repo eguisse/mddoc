@@ -16,12 +16,19 @@ RUN apt-get update -q \
     python3 pipx python3-venv git curl vim \
     ca-certificates  fontconfig ttf-mscorefonts-installer fonts-ipafont xfonts-efont-unicode fonts-freefont-otf \
     zlib1g libpng-tools fonts-freefont-ttf locales plantuml exiftool pandoc-plantuml-filter pandoc exiftool \
-    wkhtmltopdf openjdk-21-jre bash git gettext-base zlib1g-dev libpng-tools libjpeg9-dev build-essential \
-    libpython3-dev pandoc-citeproc ocaml pandoc-data pandoc-sidenote
+    openjdk-21-jre bash git gettext-base zlib1g-dev libpng-tools libjpeg9-dev build-essential \
+    libpython3-dev pandoc-data pandoc-sidenote ocaml xfonts-75dpi xfonts-base
 
 # clean apt repo and setup locales
 RUN rm -rf /var/lib/apt/lists/* \
   && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+
+# install wkhtmltox with patched qt
+ENV WKHTMLTOPDF_VERSION="0.12.6.1-3"
+RUN /bin/bash -c 'wget --quiet --output-document=/tmp/wkhtmltox.jammy_amd64.deb https://github.com/wkhtmltopdf/packaging/releases/download/${WKHTMLTOPDF_VERSION}/wkhtmltox_${WKHTMLTOPDF_VERSION}.jammy_amd64.deb && \
+    dpkg -i /tmp/wkhtmltox.jammy_amd64.deb && \
+    rm /tmp/wkhtmltox.jammy_amd64.deb'
+
 
 # add python requirements
 COPY src/ /srv/
