@@ -178,7 +178,7 @@ class Transform:
             self.css_file = os.path.join(self.resource_path, "pandoc.css")
         else:
             self.css_file = os.path.join(self.local_resource_path, "pandoc.css")
-        self.site_build_path = os.path.join(self.build_path, "site")
+        self.site_build_path = os.path.join(self.build_path, "site_build")
         self.site_img_path = os.path.join(self.site_build_path, 'images')
         self.site_diagram_dir = os.path.join(self.site_build_path, 'diagrams')
         self.mkdocs_config_filename = os.path.join(self.build_path, "mkdocs.yaml")
@@ -189,7 +189,7 @@ class Transform:
         self.include_table_of_contents = True
         self.git_history = []
         self.git_remote_branch = 'master'
-        self.diag_output_format = 'png'
+        self.diag_output_format = 'svg'
         self.doc_reviewers_page_exists = False
         self.doc_reviewers_page_name = "doc_reviewers.md"
         self.doc_reviewers_page_title: str = ""
@@ -330,7 +330,7 @@ class Transform:
 
     def convert_puml_2_img(self, in_file_name):
         """
-        convert a puml file to png file
+        convert a puml file to png or svg file
         :return:
         """
         logger.debug("start convert_puml_2_img, file_name=" + in_file_name)
@@ -480,28 +480,28 @@ class Transform:
                                 # replace link to other markdown page
                                 # from: See doc [page2](page2.md)
                                 # by  : See doc [page2](#page_page2.md)
-                                m = re.search('\[(.*?)]\(#(.*?)\)', line)
+                                m = re.search('\\[(.*?)]\\(#(.*?)\\)', line)
                                 if m:
                                     logger.debug("line match1 " + m.group(1) + " " + m.group(2) + ' for line=' + line)
-                                    line = re.sub('\[(.*?)]\(#',
+                                    line = re.sub('\\[(.*?)]\\(#',
                                                   '[<a href="#menu_' + re.sub(' ', '-', m.group(2)) + '">' + m.group(
                                                       1) + '</a>](#', line)
-                                    line = re.sub(']\(#(.*?)\)', '](#menu_' + re.sub(' ', '-', m.group(2)) + ')', line)
+                                    line = re.sub(']\\(#(.*?)\\)', '](#menu_' + re.sub(' ', '-', m.group(2)) + ')', line)
                                     # line = re.sub(']\(#(.*?)\)', '](#menu_\\1)', line)
                                 else:
                                     m = re.search('\[(.*?)]\((.*?).md\)', line)
                                     if m:
                                         logger.debug(
                                             "line match2 " + m.group(1) + " " + m.group(2) + ' for line=' + line)
-                                        line = re.sub('\[(.*?)]\(', '[<a href="#page_' + re.sub(' ', '-', m.group(
+                                        line = re.sub('\\[(.*?)]\\(', '[<a href="#page_' + re.sub(' ', '-', m.group(
                                             2)) + '.md">' + m.group(1) + '</a>](', line)
-                                        line = re.sub(']\((.*?)\)', '](#page_' + re.sub(' ', '-', m.group(2)) + ')',
+                                        line = re.sub(']\\((.*?)\)', '](#page_' + re.sub(' ', '-', m.group(2)) + ')',
                                                       line)
                                     # line = re.sub(']\((.*?).md\)', '](#page_\\1.md)', line)
 
                                 # copy images
                                 # search for image
-                                m = re.search('!\[(.*?)]\((.*?)\)', site_line)
+                                m = re.search('!\\[(.*?)]\\((.*?)\\)', site_line)
                                 if m:
                                     img_filename = m.group(2)
                                     logger.debug("copy image file: " + img_filename)
@@ -647,7 +647,7 @@ class Transform:
                                     site_page.write("![Diagram " + str(nwdiag_file_id) + "](images/" + base_nwdiag_filename + "." + self.diag_output_format + ")\n")
                                     nwdiag_file = codecs.open(nwdiag_filename, 'w', encoding=self.encoding)
                                     site_line = ''
-                                    line = "![Diagram " + str(nwdiag_file_id) + "](site/images/" + base_nwdiag_filename + "." + self.diag_output_format + ")\n"
+                                    line = "![Diagram " + str(nwdiag_file_id) + "](" + self.site_build_path + "/images/" + base_nwdiag_filename + "." + self.diag_output_format + ")\n"
 
                                 elif in_nwdiag:
                                     site_line = ''

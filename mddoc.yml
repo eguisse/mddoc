@@ -9,7 +9,8 @@ site_url: https://localhost/mddoc-test
 site_description: mddoc test document
 site_author: Steve Austin
 repo_url: https://github.com/eguisse/mddoc
-copyright: Copyright (c) 2019 2020, Emmanuel GUISSE
+copyright: Copyright (c) 2019 - 2024, Emmanuel GUISSE
+lang: en
 
 
 extra:
@@ -40,7 +41,7 @@ extra:
   # Build new file table_of_contents.md with the list of chapters found in all md documents
   include_table_of_contents: true
   logo_filename: images/logo.png
-
+  generator: false
 
 nav:
   - Home: index.md
@@ -57,17 +58,23 @@ theme:
 markdown_extensions:
     - admonition
     - codehilite:
-          guess_lang: false
+          guess_lang: true
     - toc:
           permalink: true
+    - pymdownx.arithmatex:
+          generic: true
+    - attr_list
+    - pymdownx.emoji
 
 plugins:
     - search
     - build_plantuml:
-          render: "local" # "server" or "local" for local rendering
-          bin_path: "/usr/local/bin/plantuml" # for security reason, we don't use online server
-          output_format: "png" # or "png"
-          diagram_root: "diagrams" # should reside under docs_dir
-          output_folder: "image"
-          input_folder: ""
-          input_extensions: ""
+          render: 'local' # or "local" for local rendering
+          bin_path: '/usr/local/bin/plantuml' # ignored when render: server
+          server: 'http://www.plantuml.com/plantuml' # offical plantuml server
+          disable_ssl_certificate_validation: true # for self-signed and invalid certs
+          output_format: 'svg' # 'svg' or "png"
+          diagram_root: 'docs/diagrams' # should reside under docs_dir
+          output_folder: 'out'
+          input_folder: 'src'
+          input_extensions: '' # comma separated list of extensions to parse, by default every file is parsed

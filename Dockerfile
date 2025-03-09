@@ -1,84 +1,87 @@
-FROM ubuntu:impish
+FROM ubuntu:24.04
 
-LABEL maintener emmanuel.guisse@egitc.com
-LABEL description="This image provides converter from markdown to pdf"
-LABEL project-name="mddoc"
-LABEL project_url="https://github.com/eguisse/mddoc"
+LABEL org.opencontainers.image.authors="emmanuel.guisse@egitc.com"
+LABEL org.opencontainers.image.description="This image provides converter from markdown to pdf"
+LABEL org.opencontainers.image.ref.name="mddoc"
+LABEL org.opencontainers.image.url="https://github.com/eguisse/mddoc"
+LABEL org.opencontainers.image.source="https://github.com/eguisse/mddoc"
+ARG VERSION
+LABEL org.opencontainers.image.version="$VERSION"
 
 
 ENV DEBIAN_FRONTEND=noninteractive
-RUN useradd --uid 1000 -m -s /bin/bash build
+
 RUN apt-get update -q \
-  && apt-get install -q -y software-properties-common locales pandoc gettext-base xz-utils \
-  exiftool vim openjdk-16-jdk python3 python3-pip python3-venv git curl wget lftp \
-  ca-certificates  fontconfig ttf-mscorefonts-installer ttf-ubuntu-font-family ttf-unifont fonts-ipafont \
-  libxext6 libxrender1 xfonts-75dpi xfonts-base zlib1g libssl1.1 libpng-tools graphviz lua5.3 \
-  librsvg2-common librsvg2-doc libpangocairo-1.0-0 libgtk-3-0 libjlatexmath-java \
-  libjs-mathjax librsvg2-bin pandoc-citeproc ocaml pandoc-data
-#  nodejs groff ghc context zlib1g pandoc-data libgmp10 libgmp10-dev libatomic1 libpcre3 texlive-xetex
+  && apt-get install -q -y \
+    python3 pipx python3-venv git curl vim \
+    ca-certificates  fontconfig ttf-mscorefonts-installer fonts-ipafont xfonts-efont-unicode fonts-freefont-otf \
+    zlib1g libpng-tools fonts-freefont-ttf locales plantuml exiftool pandoc-plantuml-filter pandoc exiftool \
+    openjdk-21-jre bash git gettext-base zlib1g-dev libpng-tools libjpeg9-dev build-essential \
+    libpython3-dev pandoc-data pandoc-sidenote ocaml xfonts-75dpi xfonts-base
 
-
+# clean apt repo and setup locales
 RUN rm -rf /var/lib/apt/lists/* \
   && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
-ENV LANG en_US.utf8
 
+# install wkhtmltox with patched qt
+ENV WKHTMLTOPDF_VERSION="0.12.6.1-3"
+RUN /bin/bash -c 'wget --quiet --output-document=/tmp/wkhtmltox.jammy_amd64.deb https://github.com/wkhtmltopdf/packaging/releases/download/${WKHTMLTOPDF_VERSION}/wkhtmltox_${WKHTMLTOPDF_VERSION}.jammy_amd64.deb && \
+    dpkg -i /tmp/wkhtmltox.jammy_amd64.deb && \
+    rm /tmp/wkhtmltox.jammy_amd64.deb'
 
-WORKDIR /srv
 
 # add python requirements
-COPY requirements.txt /srv/requirements.txt
-RUN pip3 install -r /srv/requirements.txt
-#RUN pip3 install wheel && pip3 install -r /srv/requirements.txt
 COPY src/ /srv/
-
-
-ARG PANDOC_VERSION="2.17.0.1"
-ENV PANDOC_VERSION=$PANDOC_VERSION
-RUN /bin/bash -c 'wget --quiet "https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-linux-amd64.tar.gz" \
-    && tar -zxvf "/srv/pandoc-${PANDOC_VERSION}-linux-amd64.tar.gz" \
-    && ln -s "/srv/pandoc-${PANDOC_VERSION}/bin/pandoc" "/srv/pandoc" \
-    && ln -s "/srv/pandoc-${PANDOC_VERSION}/bin/pandoc-citeproc" "/srv/pandoc-citeproc"'
-
-ARG WKHTMLTOPDF_VERSION="0.12.6-1"
-ENV WKHTMLTOPDF_VERSION=$WKHTMLTOPDF_VERSION
-RUN /bin/bash -c 'wget --quiet --output-document=/tmp/wkhtmltox.focal_amd64.deb https://github.com/wkhtmltopdf/packaging/releases/download/${WKHTMLTOPDF_VERSION}/wkhtmltox_${WKHTMLTOPDF_VERSION}.focal_amd64.deb && \
-    dpkg -i /tmp/wkhtmltox.focal_amd64.deb && \
-    rm /tmp/wkhtmltox.focal_amd64.deb'
-
-
-
-# install plantuml
-RUN /bin/bash -c 'cp /srv/plantuml /usr/local/bin/plantuml \
-  && chmod a+rx /usr/local/bin/plantuml \
-  && mkdir -p /opt/plantuml \
-  && chmod a+rx /opt/plantuml'
-COPY build/plantuml.jar /opt/plantuml/plantuml.jar
-COPY build/jlatexmath.jar /opt/plantuml/jlatexmath.jar
-COPY build/batik-all.jar /opt/plantuml/batik-all.jar
-RUN /bin/bash -c 'chmod a+r /opt/plantuml/plantuml.jar'
-
-
-
-# Get Last version of pandoc
 RUN chmod 777 /srv
 WORKDIR /srv
-
-RUN /bin/bash -c 'chmod a+wx *.sh'
-
-
 # Copy VERSION file
-COPY VERSION /srv/VERSION
+RUN echo "$VERSION" > /srv/VERSION
+ARG COMMIT_SHA="unknown"
+RUN echo "$COMMIT_SHA" > /srv/COMMIT
 
-USER build
+# install plantuml
+COPY src/plantuml /usr/local/bin/plantuml
+ADD https://github.com/plantuml/plantuml/releases/download/v1.2025.2/plantuml-1.2025.2.jar /opt/plantuml/plantuml.jar
+ADD https://repo1.maven.org/maven2/org/scilab/forge/jlatexmath/1.0.7/jlatexmath-1.0.7.jar /opt/plantuml/jlatexmath.jar
+ADD https://repo1.maven.org/maven2/org/apache/xmlgraphics/batik-all/1.14/batik-all-1.14.jar /opt/plantuml/batik-all.jar
+
+RUN mkdir -p /opt/plantuml && \
+    chmod a+rwx /opt/plantuml && \
+    chmod a+r /opt/plantuml/* && \
+    chmod a+wx /srv/*.sh && \
+    chmod a+x /usr/local/bin/plantuml
+
+USER ubuntu
+
+ENV LANG=en_US.utf8
+ENV PATH=/home/ubuntu/venv/bin:/srv:/home/ubuntu/.local/bin:/usr/local/bin:/usr/bin:/sbin:/bin
+COPY requirements.txt /srv/requirements.txt
+# install python requirements
+RUN python3 -m venv /home/ubuntu/venv && \
+    . /home/ubuntu/venv/bin/activate && \
+    pip3 install --upgrade pip && \
+    pip3 install wheel setuptools && \
+    pip3 install -r /srv/requirements.txt && \
+    git config --global --add safe.directory '*'
+
+#
+ENV PYTHONPATH=/srv
+ENV MDDOC_RUNTIME_PATH=/srv
+ENV MDDOC_WORKDIR=/mnt
+ENV PLANTUML_BIN=/usr/local/bin/plantuml
+
+
+
 WORKDIR /mnt
-RUN mkdir -p /home/build/.local/share/pandoc
+RUN mkdir -p /home/ubuntu/.local/share/pandoc \
+    && git config --global safe.directory '*'
 
 ENV PYTHONPATH=/srv
 ENV MDDOC_RUNTIME_PATH=/srv
 ENV MDDOC_WORKDIR=/mnt
-ENV PATH=/srv:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-ENV JAVA_HOME=/usr/lib/jvm/java-16-openjdk-amd64
+#ENV PATH=/home/ubuntu/venv/bin:/srv:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
 ENV PLANTUML_BIN=/usr/local/bin/plantuml
 
-CMD /bin/bash
+CMD [ "/bin/bash" ]
 
