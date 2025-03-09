@@ -66,8 +66,8 @@ jobs:
             - name: Generate artifact attestation
               uses: actions/attest-build-provenance@v2
               with:
-                  subject-name: index.docker.io/${{ github.repository }}
+                  subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
                   subject-digest: ${{ steps.docker_image_build_push_to_ghcr.outputs.digest }}
-                  push-to-registry: true
+                  push-to-registry: false
 
 
