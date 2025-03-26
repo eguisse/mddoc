@@ -45,9 +45,9 @@ jobs:
               name: Extract metadata (tags, labels) for Docker
               uses: docker/metadata-action@v5
               with:
-                  images:
-                      - ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-                      - ${{ env.IMAGE_NAME }}
+                  images: |
+                      ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+                      ${{ env.IMAGE_NAME }}
 
             - name: Set up QEMU
               uses: docker/setup-qemu-action@v3
