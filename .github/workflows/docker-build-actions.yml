@@ -7,6 +7,7 @@ on:
             - '*.*.*'
     pull_request:
     workflow_dispatch:
+
 env:
     REGISTRY: ghcr.io
     IMAGE_NAME: ${{ github.repository }}
@@ -49,9 +50,6 @@ jobs:
                       ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
                       ${{ env.IMAGE_NAME }}
 
-            - name: Set up QEMU
-              uses: docker/setup-qemu-action@v3
-
             - id: setup-buildx
               name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v3
@@ -60,7 +58,7 @@ jobs:
               name: Build app, build docker image and Push image to ghcr.io
               uses: docker/build-push-action@v6
               with:
-                  platforms: linux/amd64,linux/arm64
+                  platforms: linux/amd64
                   context: .
                   file: ./Dockerfile
                   push: ${{ github.event_name != 'pull_request' }}
