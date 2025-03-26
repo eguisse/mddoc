@@ -21,4 +21,4 @@ actdiag>=3.0.0
 urllib3>=2.2.3
 pygments>=2.18.0
 pymdown-extensions>=9.5
-Pillow==9.5.0
+Pillow==10.3.0

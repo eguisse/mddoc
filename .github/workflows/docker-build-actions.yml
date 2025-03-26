@@ -34,11 +34,23 @@ jobs:
                 username: ${{ github.actor }}
                 password: ${{ secrets.GITHUB_TOKEN }}
 
+            -   name: Login to DockerHub
+                if: github.event_name != 'pull_request'
+                uses: docker/login-action@v1
+                with:
+                    username: ${{ secrets.DOCKERHUB_USERNAME }}
+                    password: ${{ secrets.DOCKERHUB_TOKEN }}
+
             - id: docker_image_metadata
               name: Extract metadata (tags, labels) for Docker
-              uses: docker/metadata-action@v4
+              uses: docker/metadata-action@v5
               with:
-                  images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+                  images:
+                      - ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+                      - ${{ env.IMAGE_NAME }}
+
+            - name: Set up QEMU
+              uses: docker/setup-qemu-action@v3
 
             - id: setup-buildx
               name: Set up Docker Buildx
@@ -46,8 +58,9 @@ jobs:
 
             - id: docker_image_build_push_to_ghcr
               name: Build app, build docker image and Push image to ghcr.io
-              uses: docker/build-push-action@v5
+              uses: docker/build-push-action@v6
               with:
+                  platforms: linux/amd64,linux/arm64
                   context: .
                   file: ./Dockerfile
                   push: ${{ github.event_name != 'pull_request' }}

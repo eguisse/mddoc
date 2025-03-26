@@ -89,7 +89,7 @@ build-docker-image-nc:  ## Build the docker image without caching
 	--build-arg WKHTMLTOPDF_VERSION \
 	$(PROJECT_DIR)
 
-build: build-plantuml build-docker-image  ## Build all
+build: build-docker-image  ## Build all
 	@echo 'start build'
 
 publish: tag-latest  tag-version  ## Publish the `latest` tagged container to docker hub
