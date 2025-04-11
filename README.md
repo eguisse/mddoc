@@ -199,3 +199,20 @@ See file [.github/workflows/docker-build-actions.yml](.github/workflows/docker-b
 
 Build status: ![build status](https://github.com/eguisse/mddoc/workflows/.github/workflows/docker-build-actions.yml/badge.svg)
 
+
+## vulnerability scanning using dependabot and github actions
+
+See file [.github/workflows/dependabot.yml](.github/workflows/dependabot.yml)
+
+Description of the workflow: [https://docs.github.com/en/actions/learn-github-actions/security-hardening-with-dependabot-and-github-actions](https://docs.github.com/en/actions/learn-github-actions/security-hardening-with-dependabot-and-github-actions)
+
+
+Why perform vulnerability scanning?
+
+- To identify and fix vulnerabilities in your project's dependencies.
+- To ensure that your project is secure and up-to-date.
+- To prevent security incidents and data breaches.
+- To comply with security standards and regulations.
+
+
+

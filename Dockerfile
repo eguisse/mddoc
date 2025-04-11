@@ -17,7 +17,7 @@ RUN apt-get update -q \
     ca-certificates  fontconfig ttf-mscorefonts-installer fonts-ipafont xfonts-efont-unicode fonts-freefont-otf \
     zlib1g libpng-tools fonts-freefont-ttf locales plantuml exiftool pandoc-plantuml-filter pandoc exiftool \
     openjdk-21-jre bash git gettext-base zlib1g-dev libpng-tools libjpeg9-dev build-essential \
-    libpython3-dev pandoc-data pandoc-sidenote ocaml xfonts-75dpi xfonts-base
+    libpython3-dev pandoc-data pandoc-sidenote ocaml xfonts-75dpi xfonts-base fonts-recommended
 
 # clean apt repo and setup locales
 RUN rm -rf /var/lib/apt/lists/* \
