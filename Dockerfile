@@ -13,11 +13,16 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update -q \
   && apt-get install -q -y \
-    python3 pipx python3-venv git curl vim \
+    python3.12 pipx python3.12-venv git curl vim wget gnupg \
     ca-certificates  fontconfig ttf-mscorefonts-installer fonts-ipafont xfonts-efont-unicode fonts-freefont-otf \
     ttf-wqy-microhei zlib1g libpng-tools fonts-freefont-ttf locales plantuml exiftool pandoc-plantuml-filter pandoc exiftool \
     openjdk-25-jre bash git gettext-base zlib1g-dev libpng-tools libjpeg9-dev build-essential \
-    libpython3-dev pandoc-data pandoc-sidenote ocaml xfonts-75dpi xfonts-base fonts-recommended wkhtmltopdf
+    libpython3-dev pandoc-data pandoc-sidenote ocaml xfonts-75dpi xfonts-base fonts-recommended wkhtmltopdf \
+    nodejs npm
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
+    && apt-get update \
+    && apt-get install -q -y google-chrome-stable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libxss1
 
 # clean apt repo and setup locales
 RUN rm -rf /var/lib/apt/lists/* \
@@ -35,7 +40,7 @@ RUN echo "$COMMIT_SHA" > /srv/COMMIT
 
 # install plantuml
 COPY src/plantuml /usr/local/bin/plantuml
-ADD https://github.com/plantuml/plantuml/releases/download/v1.2026.0/plantuml-1.2026.0.jar /opt/plantuml/plantuml.jar
+ADD https://github.com/plantuml/plantuml/releases/download/v1.2026.6/plantuml-1.2026.6.jar /opt/plantuml/plantuml.jar
 ADD https://repo1.maven.org/maven2/org/scilab/forge/jlatexmath/1.0.7/jlatexmath-1.0.7.jar /opt/plantuml/jlatexmath.jar
 ADD https://repo1.maven.org/maven2/org/apache/xmlgraphics/batik-all/1.19/batik-all-1.19.jar /opt/plantuml/batik-all.jar
 
@@ -44,6 +49,17 @@ RUN mkdir -p /opt/plantuml && \
     chmod a+r /opt/plantuml/* && \
     chmod a+wx /srv/*.sh && \
     chmod a+x /usr/local/bin/plantuml
+
+# Install mermaid cli
+RUN npm install -g @mermaid-js/mermaid-cli
+# install puppeteer
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome
+RUN npm install -g puppeteer
+RUN groupadd pptruser && useradd -m -s /bin/bash -g pptruser pptruser \
+    && mkdir -p /home/pptruser/Downloads \
+    && chown -R pptruser:pptruser /home/pptruser \
+    && usermod -a -G pptruser ubuntu
+
 
 USER ubuntu
 
@@ -57,6 +73,8 @@ RUN python3 -m venv /home/ubuntu/venv && \
     pip3 install wheel setuptools && \
     pip3 install -r /srv/requirements.txt && \
     git config --global --add safe.directory '*'
+
+
 
 #
 ENV PYTHONPATH=/srv

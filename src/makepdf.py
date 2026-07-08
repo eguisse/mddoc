@@ -194,6 +194,7 @@ class Transform:
         self.doc_reviewers_page_name = "doc_reviewers.md"
         self.doc_reviewers_page_title: str = ""
         self.plantuml_output_format = "svg"
+        self.mermaid_output_format = "svg"
         self.logo_filename = None
 
     def parsefile(filename):
@@ -397,6 +398,31 @@ class Transform:
                 # plantuml returns a nice image in case of syntax error so log but still return out
                 print('Error in "uml" directive: %s' % p.stderr)
 
+    def convert_mermaid_2_img(self, in_file_name):
+        """
+        convert a mermaid file to png or svg file
+        :return:
+        """
+
+        out_filename = os.path.join(self.site_img_path, in_file_name + "." + self.mermaid_output_format)
+        logger.debug("start mmdc, infile_name=" + in_file_name + " out_filename=" + out_filename)
+        cmdline = ['/usr/local/bin/mmdc', '-o', out_filename, '-i', in_file_name]
+        try:
+            p = subprocess.run(cmdline, check=True, text=True, timeout=15)
+            print(p.stdout)
+        except subprocess.CalledProcessError as e:
+            logger.error('error when executing: ' + str(e.cmd))
+            logger.error('return code: ' + str(e.returncode))
+            logger.error('stdout: ' + str(e.stdout))
+            logger.error('stderr: ' + str(e.stderr))
+        except Exception as exc:
+            raise Exception('Failed to run mmdc: %s' % exc)
+        else:
+            if p.returncode != 0:
+                # plantuml returns a nice image in case of syntax error so log but still return out
+                print('Error in "mermaid" directive: %s' % p.stderr)
+
+
     def create_menu(self):
         """ Parse all md pages listed in mkdocs config file
         and create pages for readthedoc web site
@@ -408,6 +434,7 @@ class Transform:
         menu_level_1 = 0
         puml_files_list = []
         nwdiag_files_list = []
+        mermaid_files_list = []
         index_page_toc = []
         index_page_exists = False
         # self.combined_md_file.write('# ' + self.config_data[u'site_name'] + "\n\n")
@@ -435,6 +462,7 @@ class Transform:
                         in_meta = False
                         in_plantuml = False
                         in_nwdiag = False
+                        in_mermaid = False
                         in_chapter_line = False
                         menu_level_2 = 0
                         menu_level_3 = 0
@@ -451,6 +479,8 @@ class Transform:
                         puml_file_id = 1
                         nwdiag_file = None
                         nwdiag_file_id = 1
+                        mmd_file = None
+                        mmd_file_id = 1
 
                         for line in p.readlines():
                             line_number += 1
@@ -475,7 +505,14 @@ class Transform:
                                         nwdiag_file = None
                                         nwdiag_filename = None
                                         line = ''
-
+                                if in_mermaid:
+                                    in_mermaid = False
+                                    site_line = '\n'
+                                    if mmd_file is not None:
+                                        mmd_file.close()
+                                        mmd_file = None
+                                        nwdiag_filename = None
+                                        line = ''
                             if not_in_code_block is True:
                                 # replace link to other markdown page
                                 # from: See doc [page2](page2.md)
@@ -655,6 +692,26 @@ class Transform:
                                         nwdiag_file.write(line)
                                     line = ''
 
+                                if line.startswith("```mermaid"):
+                                    # If mermaid code block, then create a dedicated mmd file file for the diagram.
+                                    in_mermaid = True
+                                    mmd_file_id = mmd_file_id + 1
+                                    base_mmd_filename = page[u'file'] + "_mmd_" + str(mmd_file_id)
+                                    l_buf = os.path.join("diagrams", base_mmd_filename)
+                                    mmd_filename = os.path.join(self.site_build_path, l_buf + ".mmd")
+                                    mermaid_files_list.append(mmd_filename)
+                                    logger.debug("generate mmd file: " + mmd_filename)
+                                    site_page.write("![Diagram " + str(
+                                        mmd_file_id) + "](images/" + mmd_filename + "." + self.mermaid_output_format + ")\n")
+                                    mmd_file = codecs.open(mmd_filename, 'w', encoding=self.encoding)
+                                    site_line = ''
+
+
+                                elif in_mermaid:
+                                    site_line = ''
+                                    if mmd_file is not None:
+                                        mmd_file.write(line)
+
                             mergedlines.append(line)
                             site_page.write(site_line)
                         site_page.close()
@@ -704,6 +761,9 @@ class Transform:
 
         for nwdiag_file in nwdiag_files_list:
             self.convert_nwdiag_2_png(nwdiag_file)
+
+        for mermaid_file in mermaid_files_list:
+            self.convert_mermaid_2_img(mermaid_file)
 
     def reviewers_page(self):
         """

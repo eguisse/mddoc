@@ -77,7 +77,7 @@ build-docker-image:  ## Build the docker image
 	$(PROJECT_DIR)
 
 build-docker-image-nc:  ## Build the docker image without caching
-	docker build $(DOCKER_BUILD_OPT) --no-cache \
+	podman build $(DOCKER_BUILD_OPT) --no-cache \
 	-t "$(IMAGE_NAME):snapshot" \
 	$(PROJECT_DIR)
 
@@ -86,20 +86,20 @@ build: build-docker-image  ## Build all
 
 publish: tag-latest  tag-version  ## Publish the `latest` tagged container to docker hub
 	@echo 'publish latest to $(DOCKER_REPO)'
-	docker push $(DOCKER_REPO)/$(IMAGE_NAME):latest
+	podman push $(DOCKER_REPO)/$(IMAGE_NAME):latest
 	@echo 'publish $(VERSION) to $(DOCKER_REPO)'
-	docker push $(DOCKER_REPO)/$(IMAGE_NAME):$(VERSION)
+	podman push $(DOCKER_REPO)/$(IMAGE_NAME):$(VERSION)
 
 # Docker tagging
 tag: tag-latest tag-version ## Generate container tags for the `{version}` ans `latest` tags
 
 tag-latest: ## Generate container `latest` tag
 	@echo 'create tag latest'
-	docker tag "$(IMAGE_NAME):$(VERSION)-snapshot" "$(DOCKER_REPO)/$(IMAGE_NAME):latest"
+	podman tag "$(IMAGE_NAME):$(VERSION)-snapshot" "$(DOCKER_REPO)/$(IMAGE_NAME):latest"
 
 tag-version: ## Generate container `{version}` tag
 	@echo 'create tag $(VERSION)'
-	docker tag "$(IMAGE_NAME):$(VERSION)-snapshot" "$(DOCKER_REPO)/$(IMAGE_NAME):$(VERSION)"
+	podman tag "$(IMAGE_NAME):$(VERSION)-snapshot" "$(DOCKER_REPO)/$(IMAGE_NAME):$(VERSION)"
 
 # testing
 
@@ -108,20 +108,20 @@ clean:  ## delete test build files
 
 test-docker-pdf:  ## Run docker container for test convert to pdf
 	@echo 'start test-docker-pdf for project path $(REPO_DOC_TEST)'
-	docker run -it --rm -v "$(PROJECT_DIR):/mnt:rw" "$(IMAGE_NAME):$(VERSION)-snapshot" bash makepdf.sh -d docs -b build -o build/mddoc-docker-test.pdf -r src/resources -f mddoc.yml
+	podman run -it --rm --userns keep-id  -u "`id -u`:`id -g`" -v "$(PROJECT_DIR):/mnt:rw" "localhost/$(IMAGE_NAME):snapshot" bash makepdf.sh -d docs -b build -o build/mddoc-docker-test.pdf -r src/resources -f mddoc.yml
 
 test-docker-bash:  ## run docker container and execute bash
 	@echo 'start test-docker-bash for project path $(REPO_DOC_TEST)'
-	docker run -it --rm -v "$(CURRENT_DIR):/mnt:rw" "$(IMAGE_NAME):$(VERSION)-snapshot" bash
+	podman run -it --rm --userns keep-id  -u "`id -u`:`id -g`" -v "$(CURRENT_DIR):/mnt:rw" "localhost/$(IMAGE_NAME):snapshot" bash
 
 test-md: clean  ## test markdown transformation
 	source venv/bin/activate && export PYTHONPATH=$(CURRENT_DIR)/src && python3 src/makepdf.py -f $(CURRENT_DIR)/mddoc.yml -p $(CURRENT_DIR) -b $(CURRENT_DIR)/build -d docs -r src/resources
 
 test-docker-site:  ## Run docker container for test convert to html site
 	@echo 'start test-docker-pdf for project path $(REPO_DOC_TEST)'
-	docker run -it --rm -v "$(PROJECT_DIR):/mnt:rw" "$(IMAGE_NAME):$(VERSION)-snapshot" mkdocs build -f build/mkdocs.yaml
+	podman run -it --rm -v "$(PROJECT_DIR):/mnt:rw" "localhost/$(IMAGE_NAME):snapshot" mkdocs build -f build/mkdocs.yaml
 
 test-docker-site-server:  ## Run docker container as a http server to access to the generated sited
 	@echo 'start test-docker-pdf for project path $(REPO_DOC_TEST)'
-	docker run -it --rm -v "$(PROJECT_DIR):/mnt:rw" -p "8000:8000" "$(IMAGE_NAME):$(VERSION)-snapshot" mkdocs serve -f build/mkdocs.yaml
+	podman run -it --rm -v "$(PROJECT_DIR):/mnt:rw" -p "8000:8000" "localhost/$(IMAGE_NAME):snapshot" mkdocs serve -f build/mkdocs.yaml
 
