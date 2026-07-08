@@ -15,19 +15,13 @@ RUN apt-get update -q \
   && apt-get install -q -y \
     python3 pipx python3-venv git curl vim \
     ca-certificates  fontconfig ttf-mscorefonts-installer fonts-ipafont xfonts-efont-unicode fonts-freefont-otf \
-    zlib1g libpng-tools fonts-freefont-ttf locales plantuml exiftool pandoc-plantuml-filter pandoc exiftool \
-    openjdk-21-jre bash git gettext-base zlib1g-dev libpng-tools libjpeg9-dev build-essential \
-    libpython3-dev pandoc-data pandoc-sidenote ocaml xfonts-75dpi xfonts-base fonts-recommended
+    ttf-wqy-microhei zlib1g libpng-tools fonts-freefont-ttf locales plantuml exiftool pandoc-plantuml-filter pandoc exiftool \
+    openjdk-25-jre bash git gettext-base zlib1g-dev libpng-tools libjpeg9-dev build-essential \
+    libpython3-dev pandoc-data pandoc-sidenote ocaml xfonts-75dpi xfonts-base fonts-recommended wkhtmltopdf
 
 # clean apt repo and setup locales
 RUN rm -rf /var/lib/apt/lists/* \
   && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
-
-# install wkhtmltox with patched qt
-ENV WKHTMLTOPDF_VERSION="0.12.6.1-3"
-RUN /bin/bash -c 'wget --quiet --output-document=/tmp/wkhtmltox.jammy_amd64.deb https://github.com/wkhtmltopdf/packaging/releases/download/${WKHTMLTOPDF_VERSION}/wkhtmltox_${WKHTMLTOPDF_VERSION}.jammy_amd64.deb && \
-    dpkg -i /tmp/wkhtmltox.jammy_amd64.deb && \
-    rm /tmp/wkhtmltox.jammy_amd64.deb'
 
 
 # add python requirements
@@ -41,9 +35,9 @@ RUN echo "$COMMIT_SHA" > /srv/COMMIT
 
 # install plantuml
 COPY src/plantuml /usr/local/bin/plantuml
-ADD https://github.com/plantuml/plantuml/releases/download/v1.2025.2/plantuml-1.2025.2.jar /opt/plantuml/plantuml.jar
+ADD https://github.com/plantuml/plantuml/releases/download/v1.2026.0/plantuml-1.2026.0.jar /opt/plantuml/plantuml.jar
 ADD https://repo1.maven.org/maven2/org/scilab/forge/jlatexmath/1.0.7/jlatexmath-1.0.7.jar /opt/plantuml/jlatexmath.jar
-ADD https://repo1.maven.org/maven2/org/apache/xmlgraphics/batik-all/1.14/batik-all-1.14.jar /opt/plantuml/batik-all.jar
+ADD https://repo1.maven.org/maven2/org/apache/xmlgraphics/batik-all/1.19/batik-all-1.19.jar /opt/plantuml/batik-all.jar
 
 RUN mkdir -p /opt/plantuml && \
     chmod a+rwx /opt/plantuml && \
@@ -80,7 +74,7 @@ ENV PYTHONPATH=/srv
 ENV MDDOC_RUNTIME_PATH=/srv
 ENV MDDOC_WORKDIR=/mnt
 #ENV PATH=/home/ubuntu/venv/bin:/srv:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+ENV JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64
 ENV PLANTUML_BIN=/usr/local/bin/plantuml
 
 CMD [ "/bin/bash" ]

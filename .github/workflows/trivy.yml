@@ -1,0 +1,33 @@
+---
+name: trivy-scanner
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+      - 'refs/tags/*'
+jobs:
+    trivy-scan:
+        name: Trivy Scan
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout code
+            uses: actions/checkout@v4
+
+          - name: Set up Trivy
+            uses: aquasecurity/trivy-action@v0.10.3
+            with:
+              version: '0.44.3'
+
+          - name: Run Trivy vulnerability scan
+            uses: aquasecurity/trivy-action@v0.10.3
+            with:
+              scan-type: 'image'
+              image-ref: 'ghcr.io/eguisse/mddoc:latest'
+              format: 'table'
+              exit-code: '1'
+              severity: 'CRITICAL,HIGH'
+              ignore-unfixed: true
+              vuln-type: 'os,library'

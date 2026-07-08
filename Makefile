@@ -31,7 +31,6 @@ export $(shell sed 's/=.*//' $(cnf))
 
 SHELL := /bin/bash
 # grep the version from the mix file
-VERSION=$(shell cat VERSION)
 CURRENT_DIR := $(CURDIR)
 ifeq ($(strip $(PROJECT_DIR)), )
 PROJECT_DIR := $(CURRENT_DIR)
@@ -54,7 +53,6 @@ help: ## This help.
 print-env:  ## print environment variables
 	echo "PROJECT_DIR: $(PROJECT_DIR)"
 	echo "CURRENT_DIR: $(CURRENT_DIR)"
-	echo "VERSION: $(VERSION)"
 	echo "CURDIR: $(CURDIR)"
 
 clean-py-venv:  ## Delete python virtual environment
@@ -68,25 +66,19 @@ build-py-venv: clean-py-venv   ## Build python virtual environment
 
 
 run-docker-img-mddoc_build:    ## Run Docker image mddoc_build used for compilation
-	docker run -it --rm --net=host --env-file $(cnf) -v "$(CURRENT_DIR):/mnt:rw" "mddoc_build:latest" bash
+	podman run -it --rm --net=host --env-file $(cnf) -v "$(CURRENT_DIR):/mnt:rw" "mddoc_build:latest" bash
 
 # DOCKER TASKS
 # Build the container
 build-docker-image:  ## Build the docker image
 	@echo 'start build in $(PROJECT_DIR)'
-	docker build $(DOCKER_BUILD_OPT) \
-	-t "$(IMAGE_NAME):$(VERSION)-snapshot"  \
-	--build-arg VERSION \
-	--build-arg PANDOC_VERSION \
-	--build-arg WKHTMLTOPDF_VERSION \
+	podman build $(DOCKER_BUILD_OPT) \
+	-t "$(IMAGE_NAME):snapshot"  \
 	$(PROJECT_DIR)
 
 build-docker-image-nc:  ## Build the docker image without caching
 	docker build $(DOCKER_BUILD_OPT) --no-cache \
-	-t "$(IMAGE_NAME):$(VERSION)-snapshot"  \
-	--build-arg VERSION \
-	--build-arg PANDOC_VERSION \
-	--build-arg WKHTMLTOPDF_VERSION \
+	-t "$(IMAGE_NAME):snapshot" \
 	$(PROJECT_DIR)
 
 build: build-docker-image  ## Build all

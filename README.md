@@ -81,7 +81,7 @@ To avoid compilation, you can use script `convert2pdf`, it uses a Docker image `
 ```bash
 docker pull eguisse/mddoc:latest
 
-docker run -it --rm -v "$(CURRENT_DIR):/mnt:rw" "mddoc:latest" bash makepdf.sh -d docs -b build -o build/mddoc-docker-test.pdf -r src/resources -f mddoc.yml
+docker run -it --rm -v "$(pwd):/mnt:rw" "mddoc:latest" bash makepdf.sh -d docs -b build -o build/mddoc-docker-test.pdf -r src/resources -f mddoc.yml
 ```
 
 Also, you could use script `[convert2pdf](convert2pdf)`

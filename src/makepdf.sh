@@ -162,6 +162,7 @@ wkhtmltopdf \
 	--page-offset 0 \
 	--enable-external-links \
 	--enable-internal-links \
+	--encoding utf-8 \
 	--replace _COPYRIGHT "${_RIGHTS}" \
    "${_BUILD_DIR}/combined.html" \
    "${_BUILD_DIR}/combined.pdf"
