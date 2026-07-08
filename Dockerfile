@@ -15,8 +15,8 @@ RUN apt-get update -q \
   && apt-get install -q -y \
     python3.12 pipx python3.12-venv git curl vim wget gnupg \
     ca-certificates  fontconfig ttf-mscorefonts-installer fonts-ipafont xfonts-efont-unicode fonts-freefont-otf \
-    ttf-wqy-microhei zlib1g libpng-tools fonts-freefont-ttf locales plantuml exiftool pandoc-plantuml-filter pandoc exiftool \
-    openjdk-25-jre bash git gettext-base zlib1g-dev libpng-tools libjpeg9-dev build-essential \
+    ttf-wqy-microhei zlib1g libpng-tools fonts-freefont-ttf locales plantuml exiftool pandoc exiftool \
+    openjdk-25-jre bash gettext-base zlib1g-dev libpng-tools libjpeg9-dev build-essential graphviz \
     libpython3-dev pandoc-data pandoc-sidenote ocaml xfonts-75dpi xfonts-base fonts-recommended wkhtmltopdf \
     nodejs npm
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
@@ -29,10 +29,8 @@ RUN rm -rf /var/lib/apt/lists/* \
   && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 
 
-# add python requirements
-COPY src/ /srv/
-RUN chmod 777 /srv
-WORKDIR /srv
+
+
 # Copy VERSION file
 RUN echo "$VERSION" > /srv/VERSION
 ARG COMMIT_SHA="unknown"
@@ -47,7 +45,6 @@ ADD https://repo1.maven.org/maven2/org/apache/xmlgraphics/batik-all/1.19/batik-a
 RUN mkdir -p /opt/plantuml && \
     chmod a+rwx /opt/plantuml && \
     chmod a+r /opt/plantuml/* && \
-    chmod a+wx /srv/*.sh && \
     chmod a+x /usr/local/bin/plantuml
 
 # Install mermaid cli
@@ -60,6 +57,9 @@ RUN groupadd pptruser && useradd -m -s /bin/bash -g pptruser pptruser \
     && chown -R pptruser:pptruser /home/pptruser \
     && usermod -a -G pptruser ubuntu
 
+COPY src/ /srv/
+RUN chmod 777 /srv && chmod a+wx /srv/*.sh
+WORKDIR /srv
 
 USER ubuntu
 

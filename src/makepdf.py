@@ -320,7 +320,7 @@ class Transform:
             self.combined_md_file.write('\n\n<div class=\"new-page\"></div>\n\n')
 
             # Now create a file for the web site
-            makedirs(self.site_build_path)
+            makedirs(self.build_path)
             cr_filename = os.path.join(self.site_build_path, 'change_record.md')
             cr = codecs.open(cr_filename, 'w', encoding=self.encoding)
             cr.write('# Change record\n\n')
@@ -335,10 +335,12 @@ class Transform:
         :return:
         """
         logger.debug("start convert_puml_2_img, file_name=" + in_file_name)
+        in_filename = os.path.join(self.site_build_path, 'diagrams', in_file_name + '.puml')
+        dest_path = os.path.join(self.build_path,'images')
         if self.plantuml_output_format == "png":
-            cmdline = ['/usr/local/bin/plantuml', "-tpng", '-o', self.site_img_path, in_file_name]
+            cmdline = ['/usr/local/bin/plantuml', "-tpng", '-o', dest_path, in_filename]
         elif self.plantuml_output_format == "svg":
-            cmdline = ['/usr/local/bin/plantuml', "-tsvg", '-o', self.site_img_path, in_file_name]
+            cmdline = ['/usr/local/bin/plantuml', "-tsvg", '-o', dest_path, in_filename]
         try:
             p = subprocess.run(cmdline, check=True, text=True, timeout=15)
             print(p.stdout)
@@ -361,7 +363,7 @@ class Transform:
         """
         logger.debug("start convert_nwdiag_2_png, file_name=" + in_file_name)
         nwdiag_filename = os.path.join(self.site_build_path, os.path.join("diagrams", in_file_name + ".diag"))
-        dest_filename = os.path.join(self.site_img_path, in_file_name + "." + self.diag_output_format)
+        dest_filename = os.path.join(self.build_path,'images', in_file_name + "." + self.diag_output_format)
         ttf_opt = '--font=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
         img_size = '--size=800x800'
 
@@ -404,9 +406,10 @@ class Transform:
         :return:
         """
 
-        out_filename = os.path.join(self.site_img_path, in_file_name + "." + self.mermaid_output_format)
-        logger.debug("start mmdc, infile_name=" + in_file_name + " out_filename=" + out_filename)
-        cmdline = ['/usr/local/bin/mmdc', '-o', out_filename, '-i', in_file_name]
+        out_filename = os.path.join(self.build_path, "images", in_file_name + "." + self.mermaid_output_format)
+        in_filename = os.path.join(self.site_build_path, "diagrams", in_file_name + ".mmd")
+        logger.debug("start mmdc, infile_name=" + in_filename  + " out_filename=" + out_filename)
+        cmdline = ['/usr/local/bin/mmdc', '-o', out_filename, '-i', in_filename]
         try:
             p = subprocess.run(cmdline, check=True, text=True, timeout=15)
             print(p.stdout)
@@ -440,6 +443,7 @@ class Transform:
         # self.combined_md_file.write('# ' + self.config_data[u'site_name'] + "\n\n")
 
         makedirs(self.site_build_path)
+        makedirs(os.path.join(self.build_path,'images'))
         makedirs(os.path.join(self.site_build_path, 'diagrams'))
 
         for page in self.pages:
@@ -497,6 +501,7 @@ class Transform:
                                         puml_file.close()
                                         puml_file = None
                                         puml_filename = None
+                                        line = ''
                                 if in_nwdiag:
                                     in_nwdiag = False
                                     site_line = '\n'
@@ -511,7 +516,7 @@ class Transform:
                                     if mmd_file is not None:
                                         mmd_file.close()
                                         mmd_file = None
-                                        nwdiag_filename = None
+                                        mmd_filename = None
                                         line = ''
                             if not_in_code_block is True:
                                 # replace link to other markdown page
@@ -659,18 +664,20 @@ class Transform:
                                     base_puml_filename = page[u'file'] + "_puml_" + str(puml_file_id)
                                     l_buf = os.path.join("diagrams", base_puml_filename)
                                     puml_filename = os.path.join(self.site_build_path, l_buf + ".puml")
-                                    puml_files_list.append(puml_filename)
+                                    puml_files_list.append(base_puml_filename)
                                     logger.debug("generate puml file: " + puml_filename)
                                     site_page.write("![Diagram " + str(
                                         puml_file_id) + "](images/" + base_puml_filename + "." + self.plantuml_output_format + ")\n")
                                     puml_file = codecs.open(puml_filename, 'w', encoding=self.encoding)
                                     puml_file.write("@startuml\n")
                                     site_line = ''
+                                    line = "![Diagram plantuml " + str(mmd_file_id ) + "](images/" + base_puml_filename + "." + self.plantuml_output_format + ")\n"
 
                                 elif in_plantuml:
                                     site_line = ''
                                     if puml_file is not None:
                                         puml_file.write(line)
+                                    line = ''
 
                                 if line.startswith("```nwdiag") or line.startswith("```diag"):
                                     # If plantuml code block, then create a dedicated puml file file for the diagram.
@@ -684,7 +691,7 @@ class Transform:
                                     site_page.write("![Diagram " + str(nwdiag_file_id) + "](images/" + base_nwdiag_filename + "." + self.diag_output_format + ")\n")
                                     nwdiag_file = codecs.open(nwdiag_filename, 'w', encoding=self.encoding)
                                     site_line = ''
-                                    line = "![Diagram " + str(nwdiag_file_id) + "](" + self.site_build_path + "/images/" + base_nwdiag_filename + "." + self.diag_output_format + ")\n"
+                                    line = "![Diagram nwdiag " + str(nwdiag_file_id) + "](images/" + base_nwdiag_filename + "." + self.diag_output_format + ")\n"
 
                                 elif in_nwdiag:
                                     site_line = ''
@@ -699,18 +706,20 @@ class Transform:
                                     base_mmd_filename = page[u'file'] + "_mmd_" + str(mmd_file_id)
                                     l_buf = os.path.join("diagrams", base_mmd_filename)
                                     mmd_filename = os.path.join(self.site_build_path, l_buf + ".mmd")
-                                    mermaid_files_list.append(mmd_filename)
+                                    mermaid_files_list.append(base_mmd_filename)
                                     logger.debug("generate mmd file: " + mmd_filename)
                                     site_page.write("![Diagram " + str(
                                         mmd_file_id) + "](images/" + mmd_filename + "." + self.mermaid_output_format + ")\n")
                                     mmd_file = codecs.open(mmd_filename, 'w', encoding=self.encoding)
                                     site_line = ''
+                                    line = "![Diagram mermaid " + str(mmd_file_id ) + "](images/" + base_mmd_filename + "." + self.mermaid_output_format + ")\n"
 
 
                                 elif in_mermaid:
                                     site_line = ''
                                     if mmd_file is not None:
                                         mmd_file.write(line)
+                                    line = ''
 
                             mergedlines.append(line)
                             site_page.write(site_line)
