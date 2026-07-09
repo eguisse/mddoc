@@ -123,7 +123,7 @@ pandoc "${_BUILD_DIR}/combined.md" \
 --verbose \
 --log="${_BUILD_DIR}/pandoc.log" \
 --self-contained \
---resource-path "${_BUILD_DIR}:${_DOC_PATH}:/tmp/pandoc" \
+--resource-path "${_SITE_BUILD_PATH}:${_BUILD_DIR}:${_DOC_PATH}:/tmp/pandoc" \
 ${_PANDOC_OPTS} \
 -t html \
 -s -o "${_BUILD_DIR}/combined.html" \
@@ -162,6 +162,8 @@ wkhtmltopdf \
 	--page-offset 0 \
 	--enable-external-links \
 	--enable-internal-links \
+	--encoding utf-8 \
+	--enable-local-file-access \
 	--replace _COPYRIGHT "${_RIGHTS}" \
    "${_BUILD_DIR}/combined.html" \
    "${_BUILD_DIR}/combined.pdf"
