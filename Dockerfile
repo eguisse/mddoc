@@ -75,19 +75,10 @@ RUN python3 -m venv /home/ubuntu/venv && \
     git config --global --add safe.directory '*'
 
 
-
-#
-ENV PYTHONPATH=/srv
-ENV MDDOC_RUNTIME_PATH=/srv
-ENV MDDOC_WORKDIR=/mnt
-ENV PLANTUML_BIN=/usr/local/bin/plantuml
-
-
-
 WORKDIR /mnt
 RUN mkdir -p /home/ubuntu/.local/share/pandoc \
     && git config --global safe.directory '*'
-
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome
 ENV PYTHONPATH=/srv
 ENV MDDOC_RUNTIME_PATH=/srv
 ENV MDDOC_WORKDIR=/mnt

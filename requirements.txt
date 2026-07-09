@@ -4,7 +4,7 @@ babel==2.18.0
 backrefs==7.0
 beautifulsoup4==4.15.0
 bios==0.1.2
-blockdiag==3.0.0
+blockdiag @ git+https://github.com/yuzutech/blockdiag.git@v3.4.2
 certifi==2026.6.17
 cfgv==3.5.0
 charset-normalizer==3.4.9
