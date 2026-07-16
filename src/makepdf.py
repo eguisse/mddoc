@@ -71,14 +71,9 @@ def get_diag_ops(line_in: str) -> str:
     :return:
     """
     result: str = ''
-    return result
-    if line_in.startswith("```plantuml{") or line_in.startswith("```nwdiag{") or line_in.startswith("```mermaid{"):
-        # get image opts
-        m = re.search(r'\{(.*?)\}', line_in)
-        if m:
-            result = m.group(1)
-    else:
-        m =''
+    m = re.search(r'```(plantuml|nwdiag|mermaid)\s*\{(.*?)\}', line_in)
+    if m:
+        result = m.group(2)
     return result
 
 
@@ -514,7 +509,7 @@ class Transform:
                         # chapter in code are ignored, printed asis
                         # yaml metadata are not printed
 
-                        not_in_code_block = True
+                        inside_code_block_flag = False
                         in_meta = False
                         in_plantuml = False
                         in_nwdiag = False
@@ -544,8 +539,9 @@ class Transform:
 
                             # Manage code block
                             if line.startswith("```"):
-                                not_in_code_block = not not_in_code_block
+                                inside_code_block_flag = not inside_code_block_flag
                                 if in_plantuml:
+                                    # This id the end of the plantuml code block
                                     in_plantuml = False
                                     site_line = '\n'
                                     if puml_file is not None:
@@ -570,7 +566,8 @@ class Transform:
                                         mmd_file = None
                                         mmd_filename = None
                                         line = ''
-                            if not_in_code_block is True:
+
+                            if not inside_code_block_flag:
                                 # replace link to other markdown page
                                 # from: See doc [page2](page2.md)
                                 # by  : See doc [page2](#page_page2.md)
@@ -609,6 +606,7 @@ class Transform:
                                         shutil.copy(os.path.join(self.docs_path, img_filename), dest_img_filename)
 
                                 in_chapter_line = False
+                                # format the line with chapter number if required
                                 if re.match(r'^#######+', line):
                                     line = re.sub(r'^#######+', '######', line)
 
@@ -660,11 +658,11 @@ class Transform:
                                     in_chapter_line = True
                                     chapter_line_title = (re.sub(r'^#', '', line)).rstrip('\r\n')
 
-                                if in_chapter_line is True:
+                                if in_chapter_line:
                                     # We modify the line with chapter
                                     menuid = 'menuid_' + chapter_number
                                     # Add chapter number if required
-                                    if self.chapter_autonumbering is True:
+                                    if self.chapter_autonumbering:
                                         new_chapter_line_title = chapter_number + ' ' + chapter_line_title
                                         # For the index page of the pdf document
                                     else:
@@ -706,7 +704,7 @@ class Transform:
                                     line = '\n'
                                     site_line = '\n'
 
-                            else:  # i am in codeblock
+                            if inside_code_block_flag:
                                 if line.startswith("```plantuml"):
                                     # If plantuml code block, then create a dedicated puml file file for the diagram.
                                     # mkdocs does not support puml code in markdown doc.
@@ -722,11 +720,13 @@ class Transform:
                                     puml_file = codecs.open(puml_filename, 'w', encoding=self.encoding)
                                     puml_file.write("@startuml\n")
                                     site_line = ''
-                                    line = "![Diagram plantuml " + str(mmd_file_id ) + "](images/" + base_puml_filename + "." + self.plantuml_output_format + ")" + get_diag_ops(line) + "\n"
+                                    #line = "![Diagram plantuml " + str(mmd_file_id ) + "](images/" + base_puml_filename + "." + self.plantuml_output_format + ")" + get_diag_ops(line) + "\n"
+                                    line = '<p><img src="' + "images/" + base_puml_filename + "." + self.plantuml_output_format + '" alt="Diagram plantuml ' + str(puml_file_id) + '" ' + get_diag_ops(line) + '/></p>\n'
 
                                 elif in_plantuml:
                                     site_line = ''
                                     if puml_file is not None:
+                                        # Write the content of the planuml code block in the puml file
                                         puml_file.write(line)
                                     line = ''
 
@@ -742,11 +742,13 @@ class Transform:
                                     site_page.write("![Diagram " + str(nwdiag_file_id) + "](images/" + base_nwdiag_filename + "." + self.diag_output_format + ")\n")
                                     nwdiag_file = codecs.open(nwdiag_filename, 'w', encoding=self.encoding)
                                     site_line = ''
-                                    line = "![Diagram nwdiag " + str(nwdiag_file_id) + "](images/" + base_nwdiag_filename + "." + self.diag_output_format + ")" + get_diag_ops(line) + "\n"
+                                    #line = "![Diagram nwdiag " + str(nwdiag_file_id) + "](images/" + base_nwdiag_filename + "." + self.diag_output_format + ")" + get_diag_ops(line) + "\n"
+                                    line = '<p><img src="' + "images/" + base_nwdiag_filename + "." + self.diag_output_format + '" alt="Diagram nwdiag ' + str(nwdiag_file_id) + '" ' + get_diag_ops(line) + '/></p>\n'
 
                                 elif in_nwdiag:
                                     site_line = ''
                                     if nwdiag_file is not None:
+                                        # Write the content of the nwdiag code block in the diag file
                                         nwdiag_file.write(line)
                                     line = ''
 
@@ -763,14 +765,17 @@ class Transform:
                                         mmd_file_id) + "](images/" + mmd_filename + "." + self.mermaid_output_format + ")\n")
                                     mmd_file = codecs.open(mmd_filename, 'w', encoding=self.encoding)
                                     site_line = ''
-                                    line = "![Diagram mermaid " + str(mmd_file_id ) + "](images/" + base_mmd_filename + "." + self.mermaid_output_format + ")" + get_diag_ops(line) + "\n"
-
+                                    #line = "![Diagram mermaid " + str(mmd_file_id ) + "](images/" + base_mmd_filename + "." + self.mermaid_output_format + ")" + get_diag_ops(line) + "\n"
+                                    line = '<p><img src="' + "images/" + base_mmd_filename + "." + self.mermaid_output_format + '" alt="Diagram mermaid ' + str(mmd_file_id) + '" ' + get_diag_ops(line) + '/></p>\n'
 
                                 elif in_mermaid:
                                     site_line = ''
                                     if mmd_file is not None:
+                                        # Write the content of the mermaid code block in the mmd file
                                         mmd_file.write(line)
                                     line = ''
+
+
 
                             mergedlines.append(line)
                             site_page.write(site_line)

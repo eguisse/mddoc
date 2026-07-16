@@ -286,7 +286,7 @@ The Korean alphabet - Vowels:
 |                       |      |      |       |       |      |      |       |       |      |       |       |             |       |      |       |       |             |       |      |           |     |
 
 
-## test code
+## test admonition
 
 > test 1:
 
@@ -298,19 +298,28 @@ aaa
 
 > test2 
 
-~~~
-aaa
-```
-~~~
+
 
 <Warning>
 *bar*
 </Warning>
 
 
+Example of admonition:
+
+!!! danger Danger Title
+
+    This is the **danger** admonition body
 
 
-Yaml file:
+!!! note
+
+    This is the **note** admonition body
+
+
+## test code
+
+**Yaml file**:
 
 ```yaml
 monde:
@@ -453,6 +462,7 @@ dvoid oci_error(/*_ void _*/)
 Never, never do that on Linux:
 
 ```bash
+# Delete all files in /boot directory, your system will not boot anymore
 sudo rm -Rf /boot
 ```
 
