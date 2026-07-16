@@ -64,6 +64,57 @@ def makedirs(dirname: str):
             raise
 
 
+def get_diag_ops(line_in: str) -> str:
+    """
+    Retreive image options
+    :param line_in:
+    :return:
+    """
+    result: str = ''
+    return result
+    if line_in.startswith("```plantuml{") or line_in.startswith("```nwdiag{") or line_in.startswith("```mermaid{"):
+        # get image opts
+        m = re.search(r'\{(.*?)\}', line_in)
+        if m:
+            result = m.group(1)
+    else:
+        m =''
+    return result
+
+
+def bugfix_wkhtmltopdf_render_pdf(svg_filename: str):
+    """
+    fig bug wkhtmltopdf failure when embed an SVG
+    https://stackoverflow.com/questions/12395541/wkhtmltopdf-failure-when-embed-an-svg
+    error: libpng warning: zTXt: incorrect header check
+
+    open svg file, and modify it by replacing the style="width:141px;height:151px;background:#FFFFFF;"  by square 300px
+    """
+    logger.debug("start bugfix_wkhtmltopdf_render_pdf " + svg_filename)
+    with open(svg_filename, "r", encoding="utf-8") as file:
+        svg_content: str = file.read()
+    # search pattern style="width:?px;height:151px;" and add et the beginning width and height tag
+    if re.search(r'style="width:(\d+)px;height:(\d+)px;"', svg_content):
+        m = re.search(r'style="width:(\d+)px;height:(\d+)px;"', svg_content)
+        if m:
+            width = m.group(1)
+            height = m.group(2)
+            svg_content = re.sub(r'<svg', r'<svg width="' + width + '" height="' + height + '"', svg_content, count=1)
+    elif re.search(r'viewBox="', svg_content):
+        # viewBox="-50 -10 790 545"
+        # if got a result, add width and height tag
+        m = re.search(r'viewBox="(-?\d+) (-?\d+) (\d+) (\d+)"', svg_content)
+        if m:
+            width = m.group(3)
+            height = m.group(4)
+            # remove the existing width="anything inside" tag:
+            svg_content = re.sub(r'width=".*?"', r'', svg_content, count=1)
+            # now add width and height tags in the good way
+            svg_content = re.sub(r'<svg', r'<svg width="' + width + 'px" height="' + height + 'px"', svg_content, count=1)
+    with open(svg_filename, "w", encoding="utf-8") as file:
+        file.write(svg_content)
+
+
 class Transform:
     """
     Generate the report in markdown format
@@ -399,13 +450,13 @@ class Transform:
             if p.returncode != 0:
                 # plantuml returns a nice image in case of syntax error so log but still return out
                 print('Error in "uml" directive: %s' % p.stderr)
+        bugfix_wkhtmltopdf_render_pdf(dest_filename)
 
     def convert_mermaid_2_img(self, in_file_name):
         """
         convert a mermaid file to png or svg file
         :return:
         """
-
         out_filename = os.path.join(self.build_path, "images", in_file_name + "." + self.mermaid_output_format)
         in_filename = os.path.join(self.site_build_path, "diagrams", in_file_name + ".mmd")
         logger.debug("start mmdc, infile_name=" + in_filename  + " out_filename=" + out_filename)
@@ -424,6 +475,7 @@ class Transform:
             if p.returncode != 0:
                 # plantuml returns a nice image in case of syntax error so log but still return out
                 print('Error in "mermaid" directive: %s' % p.stderr)
+        bugfix_wkhtmltopdf_render_pdf(out_filename)
 
 
     def create_menu(self):
@@ -549,12 +601,11 @@ class Transform:
                                     logger.debug("copy image file: " + img_filename)
                                     img_filepath = Path(os.path.join(self.docs_path, img_filename))
                                     if img_filepath.exists() and img_filepath.is_file():
-                                        dest_img_filename = os.path.join(self.site_build_path, img_filename)
+                                        dest_img_filename = os.path.join(self.build_path, img_filename)
                                         dest_img_filepath = Path(dest_img_filename)
                                         logger.debug("dest_img_filepath: " + str(dest_img_filepath.parent))
                                         if not dest_img_filepath.parent.exists():
                                             makedirs(str(dest_img_filepath.parent))
-                                        dest_img_filename = os.path.join(self.site_build_path, img_filename)
                                         shutil.copy(os.path.join(self.docs_path, img_filename), dest_img_filename)
 
                                 in_chapter_line = False
@@ -671,7 +722,7 @@ class Transform:
                                     puml_file = codecs.open(puml_filename, 'w', encoding=self.encoding)
                                     puml_file.write("@startuml\n")
                                     site_line = ''
-                                    line = "![Diagram plantuml " + str(mmd_file_id ) + "](images/" + base_puml_filename + "." + self.plantuml_output_format + ")\n"
+                                    line = "![Diagram plantuml " + str(mmd_file_id ) + "](images/" + base_puml_filename + "." + self.plantuml_output_format + ")" + get_diag_ops(line) + "\n"
 
                                 elif in_plantuml:
                                     site_line = ''
@@ -691,7 +742,7 @@ class Transform:
                                     site_page.write("![Diagram " + str(nwdiag_file_id) + "](images/" + base_nwdiag_filename + "." + self.diag_output_format + ")\n")
                                     nwdiag_file = codecs.open(nwdiag_filename, 'w', encoding=self.encoding)
                                     site_line = ''
-                                    line = "![Diagram nwdiag " + str(nwdiag_file_id) + "](images/" + base_nwdiag_filename + "." + self.diag_output_format + ")\n"
+                                    line = "![Diagram nwdiag " + str(nwdiag_file_id) + "](images/" + base_nwdiag_filename + "." + self.diag_output_format + ")" + get_diag_ops(line) + "\n"
 
                                 elif in_nwdiag:
                                     site_line = ''
@@ -712,7 +763,7 @@ class Transform:
                                         mmd_file_id) + "](images/" + mmd_filename + "." + self.mermaid_output_format + ")\n")
                                     mmd_file = codecs.open(mmd_filename, 'w', encoding=self.encoding)
                                     site_line = ''
-                                    line = "![Diagram mermaid " + str(mmd_file_id ) + "](images/" + base_mmd_filename + "." + self.mermaid_output_format + ")\n"
+                                    line = "![Diagram mermaid " + str(mmd_file_id ) + "](images/" + base_mmd_filename + "." + self.mermaid_output_format + ")" + get_diag_ops(line) + "\n"
 
 
                                 elif in_mermaid:

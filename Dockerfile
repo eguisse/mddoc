@@ -13,16 +13,23 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update -q \
   && apt-get install -q -y \
-    python3.12 pipx python3.12-venv git curl vim wget gnupg \
+    python3.12 pipx python3.12-venv git curl vim wget gnupg unzip \
     ca-certificates  fontconfig ttf-mscorefonts-installer fonts-ipafont xfonts-efont-unicode fonts-freefont-otf \
-    ttf-wqy-microhei zlib1g libpng-tools fonts-freefont-ttf locales plantuml exiftool pandoc exiftool \
-    openjdk-25-jre bash gettext-base zlib1g-dev libpng-tools libjpeg9-dev build-essential graphviz \
-    libpython3-dev pandoc-data pandoc-sidenote ocaml xfonts-75dpi xfonts-base fonts-recommended wkhtmltopdf \
+    ttf-wqy-microhei fonts-freefont-ttf locales exiftool pandoc exiftool graphviz \
+    openjdk-25-jre bash gettext-base zlib1g libjpeg9 libpng16-16t64=1.6.43-5build1 \
+    libpython3-dev pandoc-data pandoc-sidenote ocaml xfonts-75dpi xfonts-base fonts-recommended \
     nodejs npm
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
     && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
     && apt-get update \
     && apt-get install -q -y google-chrome-stable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libxss1
+
+# install wkhtmltox with patched qt
+ENV WKHTMLTOPDF_VERSION="0.12.6.1-3"
+RUN /bin/bash -c 'wget --quiet --output-document=/tmp/wkhtmltox.jammy_amd64.deb https://github.com/wkhtmltopdf/packaging/releases/download/${WKHTMLTOPDF_VERSION}/wkhtmltox_${WKHTMLTOPDF_VERSION}.jammy_amd64.deb && \
+    dpkg -i /tmp/wkhtmltox.jammy_amd64.deb && \
+    rm /tmp/wkhtmltox.jammy_amd64.deb'
+
 
 # clean apt repo and setup locales
 RUN rm -rf /var/lib/apt/lists/* \
@@ -49,17 +56,17 @@ RUN mkdir -p /opt/plantuml && \
 
 # Install mermaid cli
 RUN npm install -g @mermaid-js/mermaid-cli
-# install puppeteer
+# install puppeteer, required for mermaid cli to generate diagrams
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome
 RUN npm install -g puppeteer
 RUN groupadd pptruser && useradd -m -s /bin/bash -g pptruser pptruser \
     && mkdir -p /home/pptruser/Downloads \
     && chown -R pptruser:pptruser /home/pptruser \
-    && usermod -a -G pptruser ubuntu
+    && usermod -a -G pptruser ubuntu \
+    && mkdir -p /srv \
+    && chown -R ubuntu:ubuntu /srv
 
-COPY src/ /srv/
-RUN chmod 777 /srv && chmod a+wx /srv/*.sh
-WORKDIR /srv
+
 
 USER ubuntu
 
@@ -74,6 +81,9 @@ RUN python3 -m venv /home/ubuntu/venv && \
     pip3 install -r /srv/requirements.txt && \
     git config --global --add safe.directory '*'
 
+COPY --chown=ubuntu:ubuntu src/ /srv/
+RUN chmod a+wx /srv/*.sh
+WORKDIR /srv
 
 WORKDIR /mnt
 RUN mkdir -p /home/ubuntu/.local/share/pandoc \

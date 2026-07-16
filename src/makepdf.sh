@@ -122,16 +122,18 @@ echo "start convert ùd tp html"
 pandoc "${_BUILD_DIR}/combined.md" \
 --verbose \
 --log="${_BUILD_DIR}/pandoc.log" \
---self-contained \
 --resource-path "${_SITE_BUILD_PATH}:${_BUILD_DIR}:${_DOC_PATH}:/tmp/pandoc" \
 ${_PANDOC_OPTS} \
 -t html \
--s -o "${_BUILD_DIR}/combined.html" \
+-o "${_BUILD_DIR}/combined.html" \
 --template "${_TEMPLATE_HTML}" \
 --lua-filter="${_RESOURCE_PATH}/links-to-html.lua" \
 --css="${_CSS_FILE}" \
 --include-before-body="${_BUILD_DIR}/pdf-page1.html"
 #--metadata title="${_TITLE}"
+
+# --self-contained \
+# --embed-resources \
 
 if [ $? -ne 0 ]
 then

@@ -109,6 +109,7 @@ clean:  ## delete test build files
 test-docker-pdf:  ## Run docker container for test convert to pdf
 	@echo 'start test-docker-pdf for project path $(REPO_DOC_TEST)'
 	podman run -it --rm --userns keep-id  -u "`id -u`:`id -g`" -v "$(PROJECT_DIR):/mnt:rw" "localhost/$(IMAGE_NAME):snapshot" bash makepdf.sh -d docs -b build -o build/mddoc-docker-test.pdf -r src/resources -f mddoc.yml
+	#podman run -it --rm --userns keep-id  -u "`id -u`:`id -g`" -v "$(PROJECT_DIR):/mnt:rw" "docker.io/eguisse/mddoc:2.2.4" bash makepdf.sh -d docs -b build -o build/mddoc-docker-test.pdf -r src/resources -f mddoc.yml
 
 test-docker-bash:  ## run docker container and execute bash
 	@echo 'start test-docker-bash for project path $(REPO_DOC_TEST)'

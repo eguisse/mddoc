@@ -24,7 +24,7 @@ nwdiag {
 
 ## Rack diagram
 
-```nwdiag
+```nwdiag{width=50%}
 rackdiag {
   // define height of rack
   16U;
@@ -43,7 +43,7 @@ rackdiag {
 
 ## Block Diag
 
-```nwdiag
+```nwdiag {width=50%}
 blockdiag {
   // branching edges to multiple children
   A -> B, C;
