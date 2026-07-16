@@ -24,12 +24,12 @@ jobs:
 
         steps:
             - name: Check out the repo
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
               with:
                 fetch-depth: 1
 
             - name: Log in to Docker Hub
-              uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+              uses: docker/login-action@v4
               with:
                 registry: ${{ env.REGISTRY }}
                 username: ${{ github.actor }}
@@ -37,33 +37,29 @@ jobs:
 
             -   name: Login to DockerHub
                 if: github.event_name != 'pull_request'
-                uses: docker/login-action@v1
+                uses: docker/login-action@v4
                 with:
                     username: ${{ secrets.DOCKERHUB_USERNAME }}
                     password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-            - id: docker_image_metadata
-              name: Extract metadata (tags, labels) for Docker
-              uses: docker/metadata-action@v5
-              with:
-                  images: |
-                      ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-                      ${{ env.IMAGE_NAME }}
-
             - id: setup-buildx
               name: Set up Docker Buildx
-              uses: docker/setup-buildx-action@v3
+              uses: docker/setup-buildx-action@v4
+
 
             - id: docker_image_build_push_to_ghcr
               name: Build app, build docker image and Push image to ghcr.io
-              uses: docker/build-push-action@v6
+              uses: docker/build-push-action@v7
               with:
                   platforms: linux/amd64
                   context: .
                   file: ./Dockerfile
                   push: ${{ github.event_name != 'pull_request' }}
-                  tags: ${{ steps.docker_image_metadata.outputs.tags }}
-                  labels: ${{ steps.docker_image_metadata.outputs.labels }}
+                  tags: |
+                      ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+                      ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+                      docker.io/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+                      docker.io/${{ env.IMAGE_NAME }}:latest
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
                   build-args: |
@@ -75,10 +71,9 @@ jobs:
               run: echo ${{ steps.docker_image_build_push_to_ghcr.outputs.digest }}
 
             - name: Generate artifact attestation
-              uses: actions/attest-build-provenance@v2
+              if: github.event_name != 'pull_request' && steps.docker_image_build_push_to_ghcr.outputs.digest != ''
+              uses: actions/attest@v4
               with:
                   subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
                   subject-digest: ${{ steps.docker_image_build_push_to_ghcr.outputs.digest }}
-                  push-to-registry: false
-
-
+                  push-to-registry: true
