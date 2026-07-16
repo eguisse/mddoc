@@ -46,14 +46,6 @@ jobs:
               name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v4
 
-            - id: docker_image_metadata
-              name: Extract Docker metadata (tags, labels)
-              uses: docker/metadata-action@v5
-              with:
-                  images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-                  tags: |
-                      type=ref,event=tag
-                      type=sha,prefix=sha-
 
             - id: docker_image_build_push_to_ghcr
               name: Build app, build docker image and Push image to ghcr.io
@@ -63,8 +55,7 @@ jobs:
                   context: .
                   file: ./Dockerfile
                   push: ${{ github.event_name != 'pull_request' }}
-                  tags: ${{ steps.docker_image_metadata.outputs.tags }}
-                  labels: ${{ steps.docker_image_metadata.outputs.labels }}
+                  tags: ${{ github.ref_name }}
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
                   build-args: |
