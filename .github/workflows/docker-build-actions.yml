@@ -66,10 +66,10 @@ jobs:
               run: echo ${{ steps.docker_image_build_push_to_ghcr.outputs.digest }}
 
             - name: Generate artifact attestation
-              uses: actions/attest-build-provenance@v4
+              if: github.event_name != 'pull_request' && steps.docker_image_build_push_to_ghcr.outputs.digest != ''
+              uses: actions/attest@v4
               with:
                   subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
                   subject-digest: ${{ steps.docker_image_build_push_to_ghcr.outputs.digest }}
-                  push-to-registry: false
-
+                  push-to-registry: true
 
