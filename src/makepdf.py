@@ -300,7 +300,7 @@ class Transform:
         """
         logger.debug("start open_file_combined")
         self.outfile = os.path.join(self.build_path, 'combined.md')
-        self.combined_md_file = codecs.open(self.outfile, 'w', encoding=self.encoding)
+        self.combined_md_file = open(self.outfile, 'w', encoding=self.encoding)
         self.combined_md_file.write('\n\n<div class=\"new-page\"></div>\n\n')
 
     def close_file_combined(self):
@@ -368,7 +368,7 @@ class Transform:
             # Now create a file for the web site
             makedirs(self.build_path)
             cr_filename = os.path.join(self.site_build_path, 'change_record.md')
-            cr = codecs.open(cr_filename, 'w', encoding=self.encoding)
+            cr = open(cr_filename, 'w', encoding=self.encoding)
             cr.write('# Change record\n\n')
             for lline in self.git_history:
                 cr.write(lline + '\n')
@@ -413,7 +413,7 @@ class Transform:
         ttf_opt = '--font=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
         img_size = '--size=800x800'
 
-        with codecs.open(nwdiag_filename, 'r', self.encoding) as p:
+        with open(nwdiag_filename, 'r', encoding=self.encoding) as p:
             for line in p.readlines():
                 if line.startswith('nwdiag'):
                     cmdline = ['nwdiag', "-T", self.diag_output_format, ttf_opt, '-o', dest_filename, nwdiag_filename]
@@ -503,7 +503,7 @@ class Transform:
                 fname = os.path.join(self.docs_path, page[u'file'])
                 try:
                     # open the md document
-                    with codecs.open(fname, 'r', self.encoding) as p:
+                    with open(fname, 'r', encoding=self.encoding) as p:
                         # start to build the chapter with number
                         # we increase the level of the chapter for the global doc.
                         # chapter in code are ignored, printed asis
@@ -525,7 +525,7 @@ class Transform:
                         # mergedlines.append("<span id=page_" + page[u'file'] + "></span>")
 
                         site_build_filename = os.path.join(self.site_build_path, page[u'file'])
-                        site_page = codecs.open(site_build_filename, 'w', encoding=self.encoding)
+                        site_page = open(site_build_filename, 'w', encoding=self.encoding)
                         puml_file = None
                         puml_file_id = 1
                         nwdiag_file = None
@@ -594,6 +594,7 @@ class Transform:
                                 # search for image
                                 m = re.search('!\\[(.*?)]\\((.*?)\\)', site_line)
                                 if m:
+                                    img_alt = m.group(1)
                                     img_filename = m.group(2)
                                     logger.debug("copy image file: " + img_filename)
                                     img_filepath = Path(os.path.join(self.docs_path, img_filename))
@@ -604,6 +605,7 @@ class Transform:
                                         if not dest_img_filepath.parent.exists():
                                             makedirs(str(dest_img_filepath.parent))
                                         shutil.copy(os.path.join(self.docs_path, img_filename), dest_img_filename)
+                                        line = '<p><img src="' + img_filename + '" alt="' + img_alt + '" ' + get_diag_ops(line) + '/></p>\n'
 
                                 in_chapter_line = False
                                 # format the line with chapter number if required
@@ -717,7 +719,7 @@ class Transform:
                                     logger.debug("generate puml file: " + puml_filename)
                                     site_page.write("![Diagram " + str(
                                         puml_file_id) + "](images/" + base_puml_filename + "." + self.plantuml_output_format + ")\n")
-                                    puml_file = codecs.open(puml_filename, 'w', encoding=self.encoding)
+                                    puml_file = open(puml_filename, 'w', encoding=self.encoding)
                                     puml_file.write("@startuml\n")
                                     site_line = ''
                                     #line = "![Diagram plantuml " + str(mmd_file_id ) + "](images/" + base_puml_filename + "." + self.plantuml_output_format + ")" + get_diag_ops(line) + "\n"
@@ -740,7 +742,7 @@ class Transform:
                                     nwdiag_files_list.append(base_nwdiag_filename)
                                     logger.debug("generate diag file: " + nwdiag_filename)
                                     site_page.write("![Diagram " + str(nwdiag_file_id) + "](images/" + base_nwdiag_filename + "." + self.diag_output_format + ")\n")
-                                    nwdiag_file = codecs.open(nwdiag_filename, 'w', encoding=self.encoding)
+                                    nwdiag_file = open(nwdiag_filename, 'w', encoding=self.encoding)
                                     site_line = ''
                                     #line = "![Diagram nwdiag " + str(nwdiag_file_id) + "](images/" + base_nwdiag_filename + "." + self.diag_output_format + ")" + get_diag_ops(line) + "\n"
                                     line = '<p><img src="' + "images/" + base_nwdiag_filename + "." + self.diag_output_format + '" alt="Diagram nwdiag ' + str(nwdiag_file_id) + '" ' + get_diag_ops(line) + '/></p>\n'
@@ -763,7 +765,7 @@ class Transform:
                                     logger.debug("generate mmd file: " + mmd_filename)
                                     site_page.write("![Diagram " + str(
                                         mmd_file_id) + "](images/" + mmd_filename + "." + self.mermaid_output_format + ")\n")
-                                    mmd_file = codecs.open(mmd_filename, 'w', encoding=self.encoding)
+                                    mmd_file = open(mmd_filename, 'w', encoding=self.encoding)
                                     site_line = ''
                                     #line = "![Diagram mermaid " + str(mmd_file_id ) + "](images/" + base_mmd_filename + "." + self.mermaid_output_format + ")" + get_diag_ops(line) + "\n"
                                     line = '<p><img src="' + "images/" + base_mmd_filename + "." + self.mermaid_output_format + '" alt="Diagram mermaid ' + str(mmd_file_id) + '" ' + get_diag_ops(line) + '/></p>\n'
@@ -798,7 +800,7 @@ class Transform:
             # For the web site:
             # Create table_of_contents.md page for site
             site_build_filename = os.path.join(self.site_build_path, 'table_of_contents.md')
-            site_page = codecs.open(site_build_filename, 'w', encoding=self.encoding)
+            site_page = open(site_build_filename, 'w', encoding=self.encoding)
             if self.chapter_autonumbering is True:
                 site_page.write('# 1 Table of Contents\n\n')
             else:
@@ -841,7 +843,7 @@ class Transform:
         if os.path.isfile(doc_review_fname):
             try:
                 # open the md document
-                with codecs.open(doc_review_fname, 'r', self.encoding) as p:
+                with open(doc_review_fname, 'r', encoding=self.encoding) as p:
                     for line in p.readlines():
                         if line.startswith("#"):
                             self.combined_md_file.write("#" + line)
@@ -923,19 +925,21 @@ class Transform:
     def export_env(self):
         """
         Export environment variables will be used by the parent shell script
+        generate file combined.env , values will be used later by pandoc, wkhtmltopdf and exiftool
         :return:
         """
         logger.debug("start export_env")
         outfile = os.path.join("/tmp", 'combined.env')
         logger.debug("start building file: " + outfile)
-        f = codecs.open(outfile, 'w', encoding=self.encoding)
+        f = open(outfile, 'w', encoding=self.encoding)
 
         if self.pdf_out_filename is None:
             self.pdf_out_filename = os.path.join(self.build_path, "report.pdf")
 
         def setenv(name: str, value: str):
-            os.environ[name] = value
-            logger.debug("set value " + name + "=" + value)
+            # write the specific env variable in the file and set it in the current process environment
+            os.environ[name] = value  # codeql[py/clear-text-storage-sensitive-data]
+            # logger.debug("set value " + name + "=" + value)
             f.write(name + "=\"" + value + "\"\n")
 
         setenv("_TITLE", self.config_data[u'site_name'])
@@ -960,7 +964,9 @@ class Transform:
             setenv("_GIT_DATE", self.git_date)
         else:
             setenv("_GIT_DATE", self.config_data[u'extra'][u'published_date'])
-        setenv("_GIT_REPONAME", self.git_remote_url)
+        # fixbug: when using on gitlab or gitlab pipeline, the git remote url may contains the credential. so not using git command to get the remote url
+        #setenv("_GIT_REPONAME", self.git_remote_url)
+        setenv("_GIT_REPONAME", self.config_data[u'repo_url'])
         setenv("_DOC_PATH", self.docs_path)
         setenv("_BUILD_DIR", self.build_path)
         setenv("_RUNTIME_PATH", self.mddoc_runtime_path)
