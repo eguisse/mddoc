@@ -455,7 +455,7 @@ class Transform:
         out_filename = os.path.join(self.build_path, "images", in_file_name + "." + self.mermaid_output_format)
         in_filename = os.path.join(self.site_build_path, "diagrams", in_file_name + ".mmd")
         logger.debug("start mmdc, infile_name=" + in_filename  + " out_filename=" + out_filename)
-        cmdline = ['/usr/local/bin/mmdc', '-o', out_filename, '-i', in_filename]
+        cmdline = ['/usr/local/bin/mmdc', '-o', out_filename, '-i', in_filename, '--puppeteerConfigFile', '/srv/puppeteer-config.json']
         try:
             p = subprocess.run(cmdline, check=True, text=True, timeout=15)
             print(p.stdout)
