@@ -260,14 +260,14 @@ class Transform:
                 flattened.append(
                     {
                         u'file': page,
-                        u'title': u'%s {: .page-title}' % page[0:40],  # bug here
+                        u'title': u'%s' % page[1],
                         u'level': level,
                     })
             if type(page) is list:
                 flattened.append(
                     {
                         u'file': page[0],
-                        u'title': u'%s {: .page-title}' % page[1],
+                        u'title': u'%s' % page[1],
                         u'level': level,
                     })
             if type(page) is dict:
@@ -275,7 +275,7 @@ class Transform:
                     flattened.append(
                         {
                             u'file': list(page.values())[0],
-                            u'title': u'%s {: .page-title}' % list(page.keys())[0],
+                            u'title': u'%s' % list(page.keys())[0],
                             u'level': level,
                         })
                 if type(list(page.values())[0]) is list:
@@ -283,7 +283,7 @@ class Transform:
                     flattened.append(
                         {
                             u'file': None,
-                            u'title': u'%s {: .page-title}' % list(page.keys())[0],
+                            u'title': u'%s' % list(page.keys())[0],
                             u'level': level,
                         })
                     # Add children sections
@@ -494,8 +494,47 @@ class Transform:
         makedirs(os.path.join(self.site_build_path, 'diagrams'))
 
         for page in self.pages:
-            logger.debug("open file=" + page[u'file'])
+            logger.debug("open file=%s level=%d title=%s", page[u'file'], page[u'level'], page[u'title'])
             lines_tmp = []
+            if not page[u'file'] and page[u'title']:
+
+                if page[u'level'] == 1:
+                    menu_level_1 += 1
+                    menu_level_2 = 0
+                    menu_level_3 = 0
+                    menu_level_4 = 0
+                    menu_level_5 = 0
+                    menu_level = 1
+                    chapter_line_title = page[u'title'].rstrip('\r\n')
+                    chapter_number = str(menu_level_1)
+
+                if page[u'level'] == 2:
+                    menu_level_2 += 1
+                    menu_level_3 = 0
+                    menu_level_4 = 0
+                    menu_level_5 = 0
+                    menu_level = 2
+                    chapter_line_title = page[u'title'].rstrip('\r\n')
+                    chapter_number = str(menu_level_1) + '.' + str(menu_level_2)
+
+                menuid = 'menuid_' + chapter_number
+                if self.chapter_autonumbering:
+                    new_chapter_line_title = chapter_number + ' ' + chapter_line_title
+                    # For the index page of the pdf document
+                else:
+                    new_chapter_line_title = '&nbsp;' * (menu_level_2 - 1) * 2 + chapter_line_title
+                line_toc = "".rjust(((menu_level - 1) * 2), ' ') + '- [<a href="#' + menuid + '">' + new_chapter_line_title + '</a>](#' + menuid + ')'
+                logger.debug('LINETOC: [' + line_toc + ']')
+                self.doc_toc.append(line_toc)
+                # For web site, just rename the title
+                site_line = "#" * menu_level + ' ' + new_chapter_line_title + '\n'
+                # For pdf doc, need to increment by 1 the Menu level, + add span id to create the link to the page
+                line = "#" * (
+                    menu_level) + ' <span id="' + menuid + '">' + new_chapter_line_title \
+                       + '</span><span id="menu_' + re.sub(' ', '-',
+                                                           chapter_line_title) + '">&nbsp;</span>\n'
+                mergedlines.append(line)
+
 
             # ignore if index.md file
             if (page[u'file'] and not page[u'file'] == 'index.md' and not page[u'file'] == 'doc_reviewers.md') or (
@@ -535,6 +574,14 @@ class Transform:
 
                         for line in p.readlines():
                             line_number += 1
+                            if re.match(r'^#', line) and not inside_code_block_flag and not in_meta and not in_plantuml and not in_nwdiag and not in_mermaid and page[u'level']:
+                                if page[u'level'] == 2:
+                                    # We are in a chapter line, we need to increase the level of the chapter for the global doc.
+                                    line = "#" + line
+                                elif page[u'level'] == 3:
+                                    line = "##" + line
+
+
                             site_line = line
 
                             # Manage code block

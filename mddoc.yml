@@ -47,7 +47,8 @@ nav:
   - Home: index.md
   - Introduction: introduction.md
   - Processes: process.md
-  - Network diagram: nwdiag.md
+  - network:
+    - Network diagram: nwdiag.md
   - Plantuml diagram: plantuml.md
 
 
