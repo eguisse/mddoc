@@ -89,6 +89,7 @@ WORKDIR /mnt
 RUN mkdir -p /home/ubuntu/.local/share/pandoc \
     && git config --global safe.directory '*'
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome
+ENV PUPPETEER_SKIP_DOWNLOAD=true
 ENV PYTHONPATH=/srv
 ENV MDDOC_RUNTIME_PATH=/srv
 ENV MDDOC_WORKDIR=/mnt
