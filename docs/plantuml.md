@@ -192,4 +192,26 @@ Just plain text
 ```
 
 
+
+## Example of a Gantt chart
+
+```plantuml
+@startgantt
+Project starts the 2024/06/01
+[Task A] lasts 10 days
+[Task B] lasts 5 days
+[Task C] lasts 3 days
+[Task D] lasts 7 days
+[Task A] is colored in #FFAAAA
+[Task B] is colored in #AAFFAA
+[Task C] is colored in #AAAAFF
+[Task D] is colored in #FFFFAA
+[Task A] starts at 2024/06/01
+[Task B] starts at 2024/06/11
+[Task C] starts at 2024/06/16
+[Task D] starts at 2024/06/19
+@endgantt
+```
+
+
 ``end of chapter.``
