@@ -106,6 +106,7 @@ def bugfix_wkhtmltopdf_render_pdf(svg_filename: str):
             svg_content = re.sub(r'width=".*?"', r'', svg_content, count=1)
             # now add width and height tags in the good way
             svg_content = re.sub(r'<svg', r'<svg width="' + width + 'px" height="' + height + 'px"', svg_content, count=1)
+    makedirs(os.path.dirname(svg_filename))
     with open(svg_filename, "w", encoding="utf-8") as file:
         file.write(svg_content)
 
@@ -410,6 +411,7 @@ class Transform:
         logger.debug("start convert_nwdiag_2_png, file_name=" + in_file_name)
         nwdiag_filename = os.path.join(self.site_build_path, os.path.join("diagrams", in_file_name + ".diag"))
         dest_filename = os.path.join(self.build_path,'images', in_file_name + "." + self.diag_output_format)
+        makedirs(os.path.dirname(dest_filename))
         ttf_opt = '--font=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
         img_size = '--size=800x800'
 
@@ -542,6 +544,7 @@ class Transform:
                 fname = os.path.join(self.docs_path, page[u'file'])
                 try:
                     # open the md document
+                    logger.debug("open file=%s level=%d title=%s", fname, page[u'level'], page[u'title'])
                     with open(fname, 'r', encoding=self.encoding) as p:
                         # start to build the chapter with number
                         # we increase the level of the chapter for the global doc.
@@ -564,6 +567,10 @@ class Transform:
                         # mergedlines.append("<span id=page_" + page[u'file'] + "></span>")
 
                         site_build_filename = os.path.join(self.site_build_path, page[u'file'])
+                        logger.debug("open site_build_filename=%s" % site_build_filename)
+                        # create the directory if not exists
+                        makedirs(os.path.dirname(site_build_filename))
+                        # write the page for the web site into the site_build directory
                         site_page = open(site_build_filename, 'w', encoding=self.encoding)
                         puml_file = None
                         puml_file_id = 1
@@ -766,6 +773,7 @@ class Transform:
                                     logger.debug("generate puml file: " + puml_filename)
                                     site_page.write("![Diagram " + str(
                                         puml_file_id) + "](images/" + base_puml_filename + "." + self.plantuml_output_format + ")\n")
+                                    makedirs(os.path.dirname(puml_filename))
                                     puml_file = open(puml_filename, 'w', encoding=self.encoding)
                                     puml_file.write("@startuml\n")
                                     site_line = ''
@@ -789,6 +797,7 @@ class Transform:
                                     nwdiag_files_list.append(base_nwdiag_filename)
                                     logger.debug("generate diag file: " + nwdiag_filename)
                                     site_page.write("![Diagram " + str(nwdiag_file_id) + "](images/" + base_nwdiag_filename + "." + self.diag_output_format + ")\n")
+                                    makedirs(os.path.dirname(nwdiag_filename))
                                     nwdiag_file = open(nwdiag_filename, 'w', encoding=self.encoding)
                                     site_line = ''
                                     #line = "![Diagram nwdiag " + str(nwdiag_file_id) + "](images/" + base_nwdiag_filename + "." + self.diag_output_format + ")" + get_diag_ops(line) + "\n"
@@ -812,6 +821,7 @@ class Transform:
                                     logger.debug("generate mmd file: " + mmd_filename)
                                     site_page.write("![Diagram " + str(
                                         mmd_file_id) + "](images/" + mmd_filename + "." + self.mermaid_output_format + ")\n")
+                                    makedirs(os.path.dirname(mmd_filename))
                                     mmd_file = open(mmd_filename, 'w', encoding=self.encoding)
                                     site_line = ''
                                     #line = "![Diagram mermaid " + str(mmd_file_id ) + "](images/" + base_mmd_filename + "." + self.mermaid_output_format + ")" + get_diag_ops(line) + "\n"
