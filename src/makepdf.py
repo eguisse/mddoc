@@ -376,14 +376,17 @@ class Transform:
             cr.write('\n')
             cr.close()
 
-    def convert_puml_2_img(self, in_file_name):
+    def convert_puml_2_img(self, in_file_name: str):
         """
         convert a puml file to png or svg file
         :return:
         """
         logger.debug("start convert_puml_2_img, file_name=" + in_file_name)
         in_filename = os.path.join(self.site_build_path, 'diagrams', in_file_name + '.puml')
-        dest_path = os.path.join(self.build_path,'images')
+        dest_filename = os.path.join(self.build_path,'images', in_file_name + '.puml')
+        dest_path = os.path.dirname(dest_filename)
+        #in_filename = os.path.basename(dest_filename)
+        makedirs(dest_path)
         if self.plantuml_output_format == "png":
             cmdline = ['/usr/local/bin/plantuml', "-tpng", '-o', dest_path, in_filename]
         elif self.plantuml_output_format == "svg":
