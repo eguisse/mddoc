@@ -108,3 +108,27 @@ actdiag {
 ```
 
 
+## puml diagram
+
+Example of PlantUML diagram, invoice processing workflow:
+
+```plantuml
+@startuml
+[*] --> State1
+State1 --> [*]
+@enduml
+```
+
+## Mermaid diagram
+
+Example of Mermaid diagram, buy processing workflow:
+
+```mermaid {width="20%"}
+stateDiagram-v2
+    [*] --> Ordered
+    Ordered --> Shipped
+    Shipped --> [*]
+```
+
+
+
